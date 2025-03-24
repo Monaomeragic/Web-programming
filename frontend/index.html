@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment System</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="CSS/spapp.css">
+    <link rel="stylesheet" href="CSS/custom.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light" style="display: none;">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <h1 id="appTitle" style="font-size: 24px; margin-right: 60px; font-weight: bold;">Appointment System <span id="appRole" style="font-size: 16px; font-weight: normal; margin-left: 8px; color: red;"></span></h1>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home" id="homeNav">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#manage-bookings" id="manageBookingsNav">Manage Bookings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#edit-professors" id="editProfessorsNav">Edit Professors</a>
+                    </li>
+
+                    <li class="nav-item" id="liveSessionsNav">
+                        <a class="nav-link" href="#live-session">Live Sessions</a>
+                    </li>
+
+                    <li class="nav-item" id="messagesNav">
+                        <a class="nav-link" href="#messages">Messages</a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="materialsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Materials
+                        </a>
+            
+                        <div class="dropdown-menu" aria-labelledby="materialsDropdown">
+                            <a class="dropdown-item" href="#math-materials">Mathematics</a>
+                            <a class="dropdown-item" href="#physics-materials">Physics</a>
+                            <a class="dropdown-item" href="#computer-science-materials">Computer Science</a>
+                            <a class="dropdown-item" href="#chemistry-materials">Chemistry</a>
+                        </div>
+                    </li>
+    
+                </ul>
+                <button id="logoutButton" class="btn btn-danger ms-3">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main SPA Container -->
+    <main id="spapp">
+        <section id="home" data-load="tpl/home.html"></section>
+        <section id="manage-bookings" data-load="tpl/manage-bookings.html"></section>
+        <section id="login" data-load="tpl/login.html"></section>
+        <section id="signup" data-load="tpl/signup.html"></section>
+        <section id="booking" data-load="tpl/booking.html"></section>
+        <section id="math-materials" data-load="tpl/math-materials.html"></section>
+        <section id="physics-materials" data-load="tpl/physics-materials.html"></section>
+        <section id="computer-science-materials" data-load="tpl/computer-science-materials.html"></section>
+        <section id="chemistry-materials" data-load="tpl/chemistry-materials.html"></section>
+        <section id="manage-users" data-load="tpl/manage-users.html"></section>
+        <section id="edit-professors" data-load="tpl/edit-professors.html"></section>
+        <section id="messages" data-load="tpl/messages.html"></section>
+        <section id="live-session" data-load="tpl/live-session.html"></section>
+    </main>
+
+    <!-- Set default page to login -->
+    <script>
+        if (!window.location.hash) {
+            window.location.hash = "#login";
+        }
+    </script>
+
+    <!-- JavaScript Files -->
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="JS/jquery.spapp.js"></script>
+    <script src="JS/custom.js"></script>
+    <script src="JS/jquery.spapp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
