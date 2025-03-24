@@ -1,0 +1,31 @@
+<div class="container mt-4">
+    <!-- For Professors to Create a Session -->
+    <div id="createSessionForm" style="display: none;">
+      <div class="card p-4 shadow-sm mb-4">
+        <h3 class="mb-3">🎓 Create a Live Session</h3>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <input type="text" id="sessionTitle" class="form-control" placeholder="Session Title" required>
+          </div>
+          <div class="col-md-3">
+            <input type="datetime-local" id="sessionTime" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <input type="text" id="sessionLocation" class="form-control" placeholder="Location" required>
+          </div>
+          <div class="col-md-2">
+            <input type="number" id="sessionCapacity" class="form-control" placeholder="Capacity" required>
+          </div>
+          <div class="col-md-1 d-grid">
+            <button onclick="createSession()" class="btn btn-primary">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- For Everyone to View Sessions -->
+    <div id="sessionsList">
+      <h3 class="mb-3">📅 Upcoming Live Sessions</h3>
+      <!-- Sessions will be populated here by JavaScript -->
+    </div>
+  </div>

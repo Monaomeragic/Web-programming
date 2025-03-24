@@ -1,0 +1,884 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Ensures padding does not affect the overall dimensions */
+}
+
+#home {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Ensures alignment starts from the left */
+    padding: 20px 40px 40px 20px; /* Adjust padding for better alignment */
+    max-width: 100%;
+    width: 100%; /* Ensure the container takes full width */
+    margin-top: 10px;
+    margin-top: 0; /* or a smaller value if you want a little space */
+  padding-top: 0;
+}
+
+
+/* ✅ NAVBAR - Always Stays at the Top */
+#navbar.navbar {
+    padding-top: 0.5rem !important;   /* Reduce top padding */
+    padding-bottom: 0.5rem !important;/* Reduce bottom padding */
+    padding-bottom: 10px;
+    
+  }
+
+
+/* ✅ Adjust Content to Not Overlap Navbar */
+main {
+    padding-top: 20px;
+    margin-left: 0;
+    width: 100%;
+
+}
+
+/* ✅ LOGIN & SIGNUP PAGES */
+#login, #signup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin-left: 500px;
+    margin-top: 100px;
+}
+
+.auth-container {
+    background: white;
+    padding: 50px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ✅ Input Fields */
+.auth-container .input-group {
+    position: relative;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.auth-container .input-group input {
+    width: 100%;
+    padding: 15px; /* Larger padding for inputs */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 18px; /* Larger font size */
+    background: white;
+    outline: none;
+    height: 50px; /* Larger input fields */
+}
+
+/* ✅ Login & Signup Buttons */
+.auth-container button {
+    width: 100%;
+    padding: 15px; /* Larger padding for buttons */
+    background: #6a11cb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px; /* Larger font size */
+    cursor: pointer;
+    transition: 0.3s ease;
+    font-weight: bold;
+}
+
+.auth-container button:hover {
+    background: #570fb2;
+}
+
+/* ✅ Bottom Links */
+.auth-container p {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.auth-container a {
+    color: #6a11cb;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-container a:hover {
+    text-decoration: underline;
+}
+
+/* ✅ Hide Navbar on Login & Signup Pages */
+#login #navbar, #signup #navbar ,#booking #navbar{
+    display: none; 
+}
+
+#home {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start;
+    padding: 20px 40px 40px 20px;
+    max-width: 100%;
+  }
+  
+  /* Make the professor list a single horizontal row */
+  #professorList {
+    display: flex;
+    flex-direction: column;    /* Changed from row to column to stack items vertically */
+    justify-content: flex-start;  /* Align to the left */
+    align-items: flex-start;      /* Align items to the start of the flex container */
+    gap: 20px;                /* Space between rows */
+    width: 100%;
+    padding-bottom: 20px;
+    padding-top: 30px;
+  }
+  
+  /* Your card styling can remain the same */
+  .professor-card {
+    width: 220px;
+    background: rgba(0, 123, 255, 0.15);
+    border-radius: 50px; 
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin: 10px; 
+  }
+  
+  .professor-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .professor-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+  
+  .professor-card h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  
+  .professor-card p {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .professor-card button {
+    background: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .professor-card button:hover {
+    background: #0056b3;
+  }
+
+  /* booking.css */
+/* Booking Page Wrapper */
+/* ✅ Subject Container - Now in One Row */
+.subject-container {
+    display: flex;
+    flex-direction: column; /* Keeps subjects stacked vertically */
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+/* ✅ Subject Cards - Stretch to Fit */
+.subject-card {
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    text-align: left;
+}
+
+/* ✅ Professor List - Displays Professors & Assistants in One Line */
+.professor-list {
+    display: flex;
+    justify-content: flex-start; /* Align everything in a row */
+    align-items: center;
+    gap: 20px;
+    margin-top: 10px;
+    overflow-x: auto; /* Allows scrolling if needed */
+    flex-wrap: nowrap; /* Prevents wrapping */
+}
+
+/* ✅ Professor Cards */
+.professor-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    width: 180px;
+    flex: 0 0 auto; /* Ensures they don't stretch */
+}
+
+.professor-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+/* ✅ Booking Button */
+.book-button {
+    background: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.book-button:hover {
+    background: #0056b3;
+}
+
+/* Booking Page Styling */
+.booking-wrapper {
+    max-width: 500px;
+    margin: 50px auto; /* Centers the box */
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Adds subtle shadow */
+    text-align: center;
+}
+
+/* Headings */
+.booking-wrapper h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.booking-wrapper p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+/* Labels */
+.booking-wrapper .form-label {
+    font-weight: bold;
+    text-align: left;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Input Fields */
+.booking-wrapper .form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+/* Confirm Button */
+.booking-wrapper .btn-success {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+.booking-wrapper .btn-success:hover {
+    background-color: #218838; /* Darker green */
+}
+
+
+.booking-card {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    width: 90%;
+    max-width: 340px;
+    text-align: left;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .booking-card:hover {
+    transform: scale(1.02);
+  }
+  
+  .booking-card p {
+    margin: 5px 0;
+  }
+  
+  .edit-booking {
+    margin-right: 10px;
+  }
+
+  #bookingsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Spacing between bookings */
+    justify-content: flex-start; /* Align bookings to the start of the container */
+    padding: 20px; /* Padding around the entire bookings container for spacing from edges */
+}
+
+.booking-item {
+    flex: 1 1 200px; /* Each booking starts at 200px wide but can grow */
+    min-width: 100px; /* Minimum width for smaller screens */
+    max-width: 200px; /* Maximum width to prevent overly wide bookings */
+    border: 1px solid #ccc; /* A subtle border around each booking */
+    padding: 10px; /* Padding inside each booking */
+    border-radius: 8px; /* Rounded corners for aesthetics */
+    background-color: #f9f9f9; /* A light grey background for each booking */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Soft shadow for 3D effect */
+}
+
+  #appRole {
+    font-size: 16px; /* Smaller than the main title */
+    font-weight: normal;
+    margin-left: 8px; /* Add spacing between the title and the role */
+}
+#navbarNav {
+    margin-left: auto; /* Pushes the navbar links to the right */
+}
+
+/* ✅ Fix navbar alignment */
+#navbar .container {
+    display: flex;
+    justify-content: flex-start; /* Moves Appointment System to the left */
+    align-items: center;
+}
+
+/* ✅ Adjust Title Alignment */
+#appTitle {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 40px; /* Space between title and menu */
+    margin-left: 0; /* Ensure it is fully left-aligned */
+}
+
+/* ✅ Materials Page - Main Container */
+#materialsContainer {
+    max-width: 800px;
+    margin: 30px auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* ✅ Headings */
+#materialsContainer h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* ✅ Material Items */
+.material-item {
+    background: #fff;
+    padding: 15px;
+    margin: 10px 0;
+    border-left: 5px solid #007bff;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ✅ Material Links */
+.material-item a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.material-item a:hover {
+    text-decoration: underline;
+}
+
+/* ✅ Buttons */
+.btn-primary, .btn-danger {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #b02a37;
+}
+
+/* ✅ Upload Section */
+#uploadSection {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#uploadMaterial {
+    display: block;
+    margin: 10px auto;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* ✅ Upload Button */
+#uploadMaterialBtn {
+    margin-top: 10px;
+}
+
+/* ✅ Footer Styling */
+#footer {
+    text-align: center;
+    background: #333;
+    color: white;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+/* Ensure materials containers are always visible and styled */
+.materialsContainer {
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  }
+  
+  /* Style for individual material items */
+  .material-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Style for material links and buttons */
+  .material-item a {
+    color: #0056b3;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .material-item a:hover {
+    text-decoration: underline;
+  }
+  
+  .material-item button {
+    padding: 5px 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .material-item button:hover {
+    background-color: #c82333;
+  }
+  
+  /* Responsive design for material containers */
+  @media (max-width: 768px) {
+    .materialsContainer {
+      padding: 10px;
+      margin: 10px;
+    }
+  }
+
+/* ✅ Add/Edit Professors Pages */
+#manage-users, #edit-professors {
+  padding: 40px;
+  max-width: 1000px;
+  margin: auto;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#manage-users:hover, #edit-professors:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+#manage-users h2, #edit-professors h2 {
+  font-size: 32px;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 25px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Form Enhancements */
+.user-form {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 35px;
+  transition: all 0.3s ease;
+}
+
+.user-form:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Input & Select Fields */
+.user-form input,
+.user-form select {
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 8px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.user-form input:focus,
+.user-form select:focus {
+  border-color: #007bff;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  outline: none;
+}
+
+.user-form button {
+  background: #007bff;
+  color: #fff;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.user-form button:hover {
+  background: #0056b3;
+}
+
+.user-form button:active {
+  transform: scale(0.98);
+}
+
+/* Align buttons side by side for Add/Edit page */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.button-container button {
+  flex: 1;
+  margin-top: 10px;
+}
+
+/* User Cards in Edit Page */
+#editProfessorsList .user-card {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+#editProfessorsList .user-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.1);
+}
+
+#editProfessorsList button {
+  background: #ff6f61;
+  color: #fff;
+  border-radius: 50px;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#editProfessorsList button:hover {
+  background: #e45547;
+}
+
+/* Spacing between user cards */
+#editProfessorsList .user-card + .user-card {
+  margin-top: 20px;
+}
+
+/* Improve spacing between form elements */
+.user-form .form-group {
+  margin-bottom: 20px;
+}
+
+/* Enhance the Add Professor Form */
+#addUserForm {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 35px;
+  width: 100%;
+  max-width: 800px;
+  margin: auto;
+}
+
+/* Title Styling */
+#addUserForm h2 {
+  font-size: 28px;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 25px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Form Field Styles */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #007bff;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  outline: none;
+}
+
+/* Button Styling */
+#addUserBtn {
+  background: #007bff;
+  color: #fff;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
+}
+
+#addUserBtn:hover {
+  background: #0056b3;
+}
+
+#addUserBtn:active {
+  transform: scale(0.98);
+}
+
+
+  .subject-row {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.subject-row h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.professors-list {
+    margin-top: 5px;
+    padding-left: 20px;
+}
+
+.user-card {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+}
+
+/* ✅ Subject Headers on Home Page */
+#professorList .subject {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  border-left: 5px solid #007bff;
+  padding-left: 10px;
+}
+
+/* ✅ Row Styling for Each Subject Group */
+#professorList .row {
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+#sessionsList {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+}
+
+.session-item {
+  padding: 10px;
+  border: 1px solid #c07272;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Container for session items */
+#sessionsListContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Two cards per row when space allows */
+  gap: 20px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+
+/* Messages container */
+#studentMessages {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Two messages per row */
+  gap: 10px;
+  margin-top: 20px;
+  width: 80%;
+  max-width: 1000px;
+  margin: auto;
+}
+
+/* Message Card Styling */
+.message-card {
+  background-color: #ffffff;
+  border-left: 5px solid #007bff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Hover effect */
+.message-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Unread message highlight */
+.message-card.unread {
+  background-color: #e9f2ff;
+}
+
+/* Message Content */
+.message-card p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #333;
+}
+
+/* Timestamp Style */
+.message-card small {
+  font-size: 13px;
+  color: #777;
+}
+
+/* Action buttons */
+.message-card button {
+  background-color: #007bff;
+  color: #ffffff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.message-card button:hover {
+  background-color: #0056b3;
+}
+
+/* Flex container for the buttons (Confirm, Cancel, Message) */
+.booking-buttons {
+  display: flex;
+  gap: 10px; /* Add space between the buttons */
+  justify-content: space-between; /* Ensure the buttons are aligned properly */
+}
+
+/* Styling for the message input area */
+.message-input {
+  margin-top: 10px; /* Space between the buttons and message input field */
+  width: 100%; /* Ensure it takes up the full width */
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* Add padding between buttons and the message box */
+.booking-card .message-area {
+  margin-top: 15px;
+}
