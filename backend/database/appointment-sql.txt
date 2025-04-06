@@ -1,0 +1,53 @@
+U dbeaveru dump mi nije radio pa sam ovako u notes stavila basu. Ako je problem pokuat cu sutra da rijesim problem i da posaljem 
+
+
+USE appointment;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255),
+    role ENUM('admin', 'professor', 'student'),
+    email VARCHAR(255),
+    password VARCHAR(255)
+);
+
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    professor_id INT NOT NULL,
+    date TIMESTAMP NOT NULL,
+    status ENUM('pending', 'confirmed', 'canceled'),
+    FOREIGN KEY (student_id) REFERENCES users(id),
+    FOREIGN KEY (professor_id) REFERENCES users(id)
+);
+
+CREATE TABLE materials (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    professor_id INT NOT NULL,
+    subject_name VARCHAR(255),
+    material_title VARCHAR(255),
+    material_url VARCHAR(255),
+    FOREIGN KEY (professor_id) REFERENCES users(id)
+);
+
+CREATE TABLE live_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    professor_id INT NOT NULL,
+    title VARCHAR(255),
+    description TEXT,
+    scheduled_time TIMESTAMP,
+    max_students INT,
+    created_at TIMESTAMP,
+    FOREIGN KEY (professor_id) REFERENCES users(id)
+);
+
+CREATE TABLE messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    from_user_id INT NOT NULL,
+    to_user_id INT NOT NULL,
+    content TEXT,
+    reading BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP,
+    FOREIGN KEY (from_user_id) REFERENCES users(id),
+    FOREIGN KEY (to_user_id) REFERENCES users(id)
+);
