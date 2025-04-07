@@ -101,7 +101,7 @@ if (!empty($materials)) {
         "material_title" => "Updated Material Title",
         "material_url" => "https://updated-link.com/material.pdf"
     ]);
-    echo "✅ Material updated!\n";
+    echo "Material updated!\n";
     print_r($materialsDao->getById($material_id));
 }
 
@@ -118,7 +118,7 @@ if (!empty($sessions)) {
         "max_students" => $sessions[0]["max_students"],
         "created_at" => $sessions[0]["created_at"]
     ]);
-    echo "✅ Live session updated!\n";
+    echo " Live session updated!\n";
     print_r($liveSessionsDao->getById($session_id));
 }
 
@@ -146,7 +146,7 @@ if (!empty($messages)) {
         "reading" => 1,
         "created_at" => $messages[0]["created_at"]
     ]);
-    echo "✅ Message marked as read!\n";
+    echo " Message marked as read!\n";
     print_r($messagesDao->getById($message_id));
 }
 
@@ -186,7 +186,7 @@ $userDao->delete($professor["id"]);
 echo "Deleted Student ID: {$student['id']}\n";
 echo "Deleted Professor ID: {$professor['id']}\n";
 
-echo "\n✅ All test entities successfully deleted.\n";
+echo "\n All test entities successfully deleted.\n";
 
 // finalni ispis
 echo "\n************* Final Users:\n";
