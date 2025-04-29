@@ -16,7 +16,7 @@ class MaterialsDao extends BaseDao {
     }
 
     public function createMaterial($materialData) {
-        $sql = "INSERT INTO materials (professor_id, subject_name, material_title, material_url) VALUES (:professor_id, :subject_name, :material_title, :material_url)";
+        $sql = "INSERT INTO materials (professor_id, subject_n, material_t, material_l) VALUES (:professor_id, :subject_n, :material_t, :material_l)";
         $stmt = $this->connection->prepare($sql);
         return $stmt->execute($materialData);
     }

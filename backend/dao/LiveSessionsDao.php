@@ -34,9 +34,12 @@ class LiveSessionsDao extends BaseDao {
     public function updateSession($id, $data) {
         $sql = "UPDATE `live_sessions` SET title = :title, description = :description, scheduled_time = :scheduled_time, max_students = :max_students WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
-        $data['id'] = $id;
         $stmt->bindParam(':id', $id);
-        return $stmt->execute($data);
+        $stmt->bindParam(':title', $data['title']);
+        $stmt->bindParam(':description', $data['description']);
+        $stmt->bindParam(':scheduled_time', $data['scheduled_time']);
+        $stmt->bindParam(':max_students', $data['max_students']);
+        return $stmt->execute();
     }
 
     // izbrisati live session
@@ -54,5 +57,15 @@ class LiveSessionsDao extends BaseDao {
         $stmt->bindParam(':session_id', $session_id);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+    public function rsvpSession($session_id, $student_id) {
+        $stmt = $this->connection->prepare("INSERT INTO session_attendance (session_id, student_id) VALUES (?, ?)");
+        $stmt->execute([$session_id, $student_id]);
+    }
+    
+    public function checkIfStudentRSVPed($session_id, $student_id) {
+        $stmt = $this->connection->prepare("SELECT * FROM session_attendance WHERE session_id = ? AND student_id = ?");
+        $stmt->execute([$session_id, $student_id]);
+        return $stmt->fetch();
     }
 }
