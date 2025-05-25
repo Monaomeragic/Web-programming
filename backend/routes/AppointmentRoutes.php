@@ -28,7 +28,10 @@ Flight::route('GET /appointments', function() {
         }
     }
 
-    if ($user->role === Roles::STUDENT) {
+    if ($user->role === Roles::ADMIN) {
+        // Admin sees all appointments
+        $appointments = Flight::appointmentsService()->getAllAppointments();
+    } elseif ($user->role === Roles::STUDENT) {
         // Students see only their own bookings
         $appointments = Flight::appointmentsService()->getByStudentId($user->id);
     } elseif ($user->role === Roles::PROFESSOR || $user->role === Roles::ASSISTANT) {
@@ -219,4 +222,38 @@ Flight::route('PATCH /appointments/confirm/@id', function($id) {
 
     $updated = Flight::appointmentsService()->updateStatus($id, 'confirmed');
     Flight::json(['message' => 'Appointment confirmed successfully', 'appointment' => $updated]);
+});
+
+/**
+ * @OA\Get(
+ *     path="/appointments/detailed",
+ *     summary="Get all appointments with student and professor details (admin)",
+ *     tags={"Appointments"},
+ *     security={{"ApiKey":{}}},
+ *     @OA\Response(response="200", description="Detailed appointments for admin")
+ * )
+ */
+Flight::route('GET /appointments/detailed', function() {
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN); // Only admin can use this
+
+    $db = Flight::db();
+    $stmt = $db->prepare(
+        "SELECT 
+            a.id,
+            a.date,
+            a.status,
+            a.time,
+            s.username AS student_name,
+            s.email AS student_email,
+            p.username AS professor_name,
+            p.email AS professor_email
+        FROM appointments a
+        LEFT JOIN users s ON a.student_id = s.id
+        LEFT JOIN users p ON a.professor_id = p.id
+        ORDER BY a.date DESC"
+    );
+    $stmt->execute();
+    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    Flight::json($appointments);
 });

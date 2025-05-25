@@ -7,5 +7,4 @@ window.Constants = {
   ASSISTANT_ROLE: "assistant"
 };
 
-// Alias for non-module scripts
 var Constants = window.Constants;

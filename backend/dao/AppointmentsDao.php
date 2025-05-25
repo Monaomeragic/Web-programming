@@ -74,5 +74,10 @@ class AppointmentsDao extends BaseDao {
     public function updateStatus($id, $status) {
         return $this->updateAppointmentStatus($id, $status);
     }
+    public function getAllAppointments() {
+        $stmt = $this->connection->prepare("SELECT * FROM appointments ORDER BY date DESC");
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
 ?>

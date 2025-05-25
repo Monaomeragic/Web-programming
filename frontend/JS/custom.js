@@ -1,3 +1,45 @@
+// Admin: Load all bookings (admin view) as inline lines
+function loadAdminBookings() {
+  const user = getUser();
+  if (!user || user.role !== "admin") {
+    alert("Access denied.");
+    return;
+  }
+  const $container = $("#admin-bookings");
+  $container.empty();
+
+  $.ajax({
+    url: "http://localhost/MonaOmeragic/Web-programming/backend/appointments",
+    method: "GET",
+    beforeSend: function(xhr) {
+      const token = localStorage.getItem("user_token");
+      if (token) {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+        xhr.setRequestHeader("Authentication", token);
+      }
+    },
+    success: function(bookings) {
+      if (!Array.isArray(bookings) || bookings.length === 0) {
+        $container.append("<p>No bookings found.</p>");
+        return;
+      }
+      bookings.forEach(b => {
+        $container.append(`
+          <div class="booking-line" style="padding:10px; border-bottom:1px solid #ccc;">
+            Booking ID: ${b.id} | 
+            Student ID: ${b.student_id} | 
+            Professor ID: ${b.professor_id} | 
+            Date: ${b.date} | 
+            Status: ${b.status || 'N/A'}
+          </div>
+        `);
+      });
+    },
+    error: function() {
+      $container.append("<p class='text-danger'>Failed to load bookings.</p>");
+    }
+  });
+}
 
 function getUser() {
   const token = localStorage.getItem("user_token");
@@ -214,6 +256,18 @@ function capitalizeFirstLetter(string) {
       displaySessions();
     }, 50);
   }});
+  // Admin bookings SPA route
+  app.route({
+    view: 'admin-bookings',
+    load: 'admin-bookings.html',
+    onReady: function() {
+      setTimeout(() => {
+        $("#admin-bookings").show();
+        loadAdminBookings();
+        updateNavigation();
+      }, 300);
+    }
+  });
   
 
   function loadHome() {

@@ -75,5 +75,9 @@ class AppointmentsService extends BaseService {
         }
         return $this->dao->sendMessageAboutAppointment($appointment_id, $from_user_id, $to_user_id, $message);
     }
+
+    public function getAllAppointments() {
+        return $this->dao->getAllAppointments();
+    }
 }
 ?>

@@ -17,7 +17,7 @@ if (typeof window.Constants === 'undefined') {
           headers: token
             ? {
                 Authorization: "Bearer " + token,
-                Authentication: token        // For legacy middleware
+                Authentication: token        
               }
             : {}
         })
