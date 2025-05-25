@@ -17,7 +17,7 @@ class UsersDao extends BaseDao {
         $stmt = $this->connection->prepare("SELECT * FROM `users` WHERE `role` = :role");
         $stmt->bindParam(':role', $role);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getProfessorsBySubject($subject) {
@@ -51,7 +51,13 @@ class UsersDao extends BaseDao {
     }
 
     public function createUser($data) {
-        return $this->insert($data);
+        try {
+            error_log("📥 UsersDao::insert data: " . json_encode($data));
+            return $this->insert($data);
+        } catch (PDOException $e) {
+            error_log("❌ UsersDao::createUser insert failed: " . $e->getMessage());
+            Flight::halt(500, "User creation failed: " . $e->getMessage());
+        }
     }
 
     public function readUser($id) {
@@ -64,5 +70,11 @@ class UsersDao extends BaseDao {
 
     public function deleteUser($id) {
         return $this->delete($id);
+    }
+
+    public function getAll() {
+        $stmt = $this->connection->prepare("SELECT * FROM users");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

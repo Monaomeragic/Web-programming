@@ -18,6 +18,25 @@ class AppointmentsService extends BaseService {
         return $this->dao->getByProfessor($professor_id);
     }
 
+    public function getByProfessorId($professor_id) {
+        return $this->getByProfessor($professor_id);
+    }
+
+    /**
+     * Return all appointments for a single student
+     *
+     * @param int $student_id
+     * @return array
+     * @throws Exception
+     */
+    public function getByStudentId($student_id) {
+        if (!$student_id) {
+            throw new Exception('Student ID is required.');
+        }
+        // Delegate to DAO method that actually exists
+        return $this->dao->getByStudentId($student_id);
+    }
+
     public function createAppointment($data) {
         if (empty($data['student_id']) || empty($data['professor_id']) || empty($data['date'])) {
             throw new Exception('Student ID, Professor ID, and Date are required.');
@@ -30,6 +49,10 @@ class AppointmentsService extends BaseService {
             throw new Exception('Appointment ID and Student ID are required.');
         }
         return $this->dao->cancelAppointmentByStudent($appointment_id, $student_id);
+    }
+
+    public function updateStatus($id, $status) {
+        return $this->dao->updateStatus($id, $status);
     }
 
     public function updateAppointmentStatus($appointment_id, $status) {

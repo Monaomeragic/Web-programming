@@ -1,27 +1,11 @@
-<div id="professorList">
-  <!-- Example structure for subjects in their own rows -->
-  <div class="row" style="display: flex; flex-direction: column; margin-bottom: 20px;">
-    <div class="subject">Mathematics</div>
-    <!-- Professors for Mathematics here -->
-  </div>
-  <div class="row" style="display: flex; flex-direction: column; margin-bottom: 20px;">
-    <div class="subject">Physics</div>
-    <!-- Professors for Physics here -->
-  </div>
-  <div class="row" style="display: flex; flex-direction: column; margin-bottom: 20px;">
-    <div class="subject">Chemistry</div>
-    <!-- Professors for Chemistry here -->
-  </div>
-  <div class="row" style="display: flex; flex-direction: column; margin-bottom: 20px;">
-    <div class="subject">Computer Science</div>
-    <!-- Professors for Computer Science here -->
-  </div>
-  <div class="row" style="display: flex; flex-direction: column; margin-bottom: 20px;">
-    <div class="subject">Biology</div>
-    <!-- Professors for Biology here -->
-  </div>
-  <div class="row" style="display: flex; flex-direction: column; margin-bottom: 20px;">
-    <div class="subject">History</div>
-    <!-- Professors for History here -->
-  </div>
-</div>
+<h2>Available Professors &amp; Assistants</h2>
+<select class="form-control mb-3" id="subjectFilter">
+  <option value="all">All Subjects</option>
+  <option value="mathematics">Mathematics</option>
+  <option value="physics">Physics</option>
+  <option value="chemistry">Chemistry</option>
+  <option value="computer-science">Computer Science</option>
+  <option value="biology">Biology</option>
+  <option value="history">History</option>
+</select>
+<div id="professorList"></div>

@@ -50,13 +50,13 @@ class LiveSessionsService extends BaseService {
         return $this->dao->getSessionAttendance($session_id);
     }
 
-    // 🔵 New: RSVP Function
+    // RSVP funkcija
     public function rsvpSession($session_id, $student_id) {
         if (empty($session_id) || empty($student_id)) {
             throw new Exception('Session ID and Student ID are required to RSVP.');
         }
 
-        // Check if student already RSVP'd
+        // check je li sutdent vec RSVP
         $existing = $this->dao->checkIfStudentRSVPed($session_id, $student_id);
         if ($existing) {
             throw new Exception('You have already RSVP’d to this session.');

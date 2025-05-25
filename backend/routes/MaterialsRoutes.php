@@ -1,6 +1,7 @@
-
-
 <?php
+
+require_once __DIR__ . '/../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../data/roles.php';
 
 // Load Materials Service
 /**
@@ -8,10 +9,16 @@
  *     path="/materials",
  *     summary="Get all materials",
  *     tags={"Materials"},
+ *     security={{"ApiKey":{}}},
  *     @OA\Response(response="200", description="List of materials")
  * )
  */
 Flight::route('GET /materials', function() {
+    Flight::auth_middleware()->authorizeRoles([
+        Roles::PROFESSOR,
+        Roles::ASSISTANT,
+        Roles::STUDENT
+    ]);
     Flight::json(Flight::materialsService()->getAll());
 });
 
@@ -20,6 +27,7 @@ Flight::route('GET /materials', function() {
  *     path="/materials/{id}",
  *     summary="Get material by ID",
  *     tags={"Materials"},
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -30,6 +38,11 @@ Flight::route('GET /materials', function() {
  * )
  */
 Flight::route('GET /materials/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([
+        Roles::PROFESSOR,
+        Roles::ASSISTANT,
+        Roles::STUDENT
+    ]);
     Flight::json(Flight::materialsService()->getById($id));
 });
 
@@ -38,6 +51,7 @@ Flight::route('GET /materials/@id', function($id) {
  *     path="/materials",
  *     summary="Create a new material",
  *     tags={"Materials"},
+ *     security={{"ApiKey":{}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent()
@@ -46,6 +60,10 @@ Flight::route('GET /materials/@id', function($id) {
  * )
  */
 Flight::route('POST /materials', function() {
+    Flight::auth_middleware()->authorizeRoles([
+        Roles::PROFESSOR,
+        Roles::ASSISTANT
+    ]);
     $data = Flight::request()->data->getData();
     Flight::json(Flight::materialsService()->create($data));
 });
@@ -55,6 +73,7 @@ Flight::route('POST /materials', function() {
  *     path="/materials/{id}",
  *     summary="Update a material",
  *     tags={"Materials"},
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -69,6 +88,10 @@ Flight::route('POST /materials', function() {
  * )
  */
 Flight::route('PUT /materials/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([
+        Roles::PROFESSOR,
+        Roles::ASSISTANT
+    ]);
     $data = Flight::request()->data->getData();
     Flight::json(Flight::materialsService()->update($id, $data));
 });
@@ -78,6 +101,7 @@ Flight::route('PUT /materials/@id', function($id) {
  *     path="/materials/{id}",
  *     summary="Delete a material",
  *     tags={"Materials"},
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -88,6 +112,10 @@ Flight::route('PUT /materials/@id', function($id) {
  * )
  */
 Flight::route('DELETE /materials/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([
+        Roles::PROFESSOR,
+        Roles::ASSISTANT
+    ]);
     Flight::materialsService()->delete($id);
     Flight::json(["message" => "Material deleted successfully"]);
 });

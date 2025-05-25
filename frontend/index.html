@@ -31,6 +31,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#manage-bookings" id="manageBookingsNav">Manage Bookings</a>
                     </li>
+                    <li class="nav-item" id="adminBookingsNav" style="display: none;">
+                        <a class="nav-link" href="#admin-bookings">All Bookings</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#edit-professors" id="editProfessorsNav">Edit Professors</a>
                     </li>
@@ -66,6 +69,7 @@
     <main id="spapp">
         <section id="home" data-load="tpl/home.html"></section>
         <section id="manage-bookings" data-load="tpl/manage-bookings.html"></section>
+        <section id="admin-bookings" data-load="tpl/admin-bookings.html"></section>
         <section id="login" data-load="tpl/login.html"></section>
         <section id="signup" data-load="tpl/signup.html"></section>
         <section id="booking" data-load="tpl/booking.html"></section>
@@ -77,6 +81,7 @@
         <section id="edit-professors" data-load="tpl/edit-professors.html"></section>
         <section id="messages" data-load="tpl/messages.html"></section>
         <section id="live-session" data-load="tpl/live-session.html"></section>
+        
     </main>
 
     <!-- Set default page to login -->
@@ -86,12 +91,53 @@
         }
     </script>
 
-    <!-- JavaScript Files -->
+    <!-- jQuery & SPApp -->
     <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
-    <script src="JS/jquery.spapp.js"></script>
-    <script src="JS/custom.js"></script>
     <script src="JS/jquery.spapp.min.js"></script>
+
+    <!-- App AJAX & Utilities -->
+    <script src="utils/constants.js"></script>
+    <script src="utils/rest-client.js"></script>
+    <script src="utils/utils.js"></script>
+
+    <!-- App Services -->
+    <script src="services/user-service.js"></script>
+    <script src="services/appointment-service.js"></script>
+    <script src="services/materials-service.js"></script>
+    <script src="services/messages-service.js"></script>
+    <script src="services/live-session-service.js"></script>
+
+    <!-- Custom SPA scripts -->
+    <script src="JS/custom.js"></script>
+
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        $(document).on('spapp:afterReplace', function(event, viewId) {
+          if (viewId === 'login') {
+            UserService.initLogin();
+          } else if (viewId === 'signup') {
+            UserService.initSignup();
+          } else if (viewId === 'home') {
+            loadHome(); // call the function to fetch and display professors
+          } 
+        });
+
+        // Fallback for direct page load
+        const hash = window.location.hash;
+        if (hash === '#login') {
+          UserService.initLogin();
+        } else if (hash === '#signup') {
+          UserService.initSignup();
+        } else if (hash === '#home') {
+          loadHome();
+        }
+
+        UserService.generateMenu();
+      });
+    </script>
 </body>
 
 </html>

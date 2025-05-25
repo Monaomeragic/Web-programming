@@ -1,7 +1,12 @@
 <?php
+
+require_once __DIR__ . '/../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../data/roles.php';
+
 /**
  * @OA\Get(
  *     path="/users",
+ *     security={{"ApiKey":{}}},
  *     tags={"Users"},
  *     summary="Get all users",
  *     @OA\Response(
@@ -16,13 +21,33 @@
  *     )
  * )
  */
-Flight::route('GET /users', function(){
-    Flight::json(Flight::usersService()->getAll());
+Flight::route('GET /users', function () {
+    // Authorize and verify JWT for all authenticated users
+    Flight::auth_middleware()->authorize(); // Allow all authenticated users
+    // Fetch the decoded token user info
+    $user = Flight::get('user');
+    // Now load all users
+    $users = Flight::usersService()->getAll();
+    Flight::json($users);
+});
+
+// New route: Get all professors and assistants (staff) - for students and admins
+Flight::route('GET /users/staff', function () {
+    // Authorize and verify JWT for all authenticated users
+    Flight::auth_middleware()->authorize(); // Allow all authenticated users
+
+    // Fetch and return professors + assistants
+    $professors = Flight::usersService()->getUsersByRole('professor') ?? [];
+    $assistants = Flight::usersService()->getUsersByRole('assistant') ?? [];
+    $staff = array_merge($professors, $assistants);
+
+    Flight::json($staff);
 });
 
 /**
  * @OA\Get(
  *     path="/users/{id}",
+ *     security={{"ApiKey":{}}},
  *     tags={"Users"},
  *     summary="Get user by ID",
  *     @OA\Parameter(
@@ -45,22 +70,25 @@ Flight::route('GET /users', function(){
  * )
  */
 Flight::route('GET /users/@id', function($id){
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
     Flight::json(Flight::usersService()->getById($id));
 });
 
 /**
  * @OA\Post(
  *     path="/users",
+ *     security={{"ApiKey":{}}},
  *     tags={"Users"},
  *     summary="Create a new user",
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             required={"username","role","email","password"},
- *             @OA\Property(property="username", type="string"),
- *             @OA\Property(property="role", type="string", example="professor,assistant,student", enum={"professor", "assistant", "student"}),
+ *             required={"name","role","email","password"},
+ *             @OA\Property(property="name", type="string"),
+ *             @OA\Property(property="role", type="string", example="professor", enum={"professor", "assistant", "student"}),
  *             @OA\Property(property="email", type="string"),
- *             @OA\Property(property="password", type="string")
+ *             @OA\Property(property="password", type="string"),
+ *             @OA\Property(property="subjects", type="array", @OA\Items(type="string"))
  *         )
  *     ),
  *     @OA\Response(
@@ -74,7 +102,8 @@ Flight::route('GET /users/@id', function($id){
  * )
  */
 Flight::route('POST /users', function(){
-    $data = Flight::request()->data->getData();
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
+    $data = Flight::request()->data->getData(); // use JSON body (base64 upload)
 
     // student, professor ili assistant
     if (!in_array($data['role'], ['professor', 'assistant', 'student'])) {
@@ -95,12 +124,18 @@ Flight::route('POST /users', function(){
         Flight::halt(400, json_encode(['error' => 'Admin credentials are restricted to admin@admin.com / admin123']));
     }
 
-    Flight::json(Flight::usersService()->create($data));
+    $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+    $id = Flight::usersService()->create($data);
+    Flight::json([
+        "success" => true,
+        "id" => $id
+    ]);
 });
 
 /**
  * @OA\Put(
  *     path="/users/{id}",
+ *     security={{"ApiKey":{}}},
  *     tags={"Users"},
  *     summary="Update a user",
  *     @OA\Parameter(
@@ -129,13 +164,16 @@ Flight::route('POST /users', function(){
  * )
  */
 Flight::route('PUT /users/@id', function($id){
+    Flight::auth_middleware()->checkRoleOrSelf(Roles::ADMIN, $id);
     $data = Flight::request()->data->getData();
-    Flight::json(Flight::usersService()->update($id, $data));
+    $user = Flight::usersService()->update($id, $data);
+    Flight::json($user);
 });
 
 /**
  * @OA\Delete(
  *     path="/users/{id}",
+ *     security={{"ApiKey":{}}},
  *     tags={"Users"},
  *     summary="Delete a user",
  *     @OA\Parameter(
@@ -156,6 +194,11 @@ Flight::route('PUT /users/@id', function($id){
  * )
  */
 Flight::route('DELETE /users/@id', function($id){
-    Flight::json(["message" => "User deleted", "success" => Flight::usersService()->delete($id)]);
+    Flight::auth_middleware()->checkRoleOrSelf(Roles::ADMIN, $id);
+    $success = Flight::usersService()->delete($id);
+    Flight::json([
+        "success" => $success,
+        "message" => $success ? "User deleted" : "Delete failed"
+    ]);
 });
 ?>

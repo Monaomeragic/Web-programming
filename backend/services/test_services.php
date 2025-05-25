@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once __DIR__ . '/../dao/config.php'; // important: database connection
+require_once __DIR__ . '/../dao/config.php'; 
 require_once __DIR__ . '/../services/UsersService.php';
 require_once __DIR__ . '/../services/AppointmentsService.php';
 require_once __DIR__ . '/../services/MaterialsService.php';
@@ -37,7 +37,7 @@ if (empty($users)) {
         echo "Error creating test user: " . $e->getMessage() . "\n";
     }
 
-    // Create a fake professor if none exist
+    // za test profesora
     $professors = array_filter($usersService->getAll(), function($user) {
         return $user['role'] === 'professor';
     });
@@ -67,12 +67,12 @@ if (empty($users)) {
         $professorId = $professor['id'];
     }
 } else {
-    // If users exist, find a professor ID for later use
+    // If users exist, naci prof ID
     $professors = array_filter($users, function($user) {
         return $user['role'] === 'professor';
     });
     if (empty($professors)) {
-        // No professor found, create one
+        // ako nije nadjen prof da se novi doda
         echo "No professors found. Inserting a test professor...\n";
         $newProfessor = [
             "username" => "Test Professor",
@@ -105,8 +105,8 @@ $appointments = $appointmentsService->getAll();
 if (empty($appointments)) {
     echo "No appointments found. Inserting a test appointment...\n";
     $newAppointment = [
-        "student_id" => 18, // Adjust based on your created user ID
-        "professor_id" => $professorId, // Adjusted to use dynamic professor ID
+        "student_id" => 18, // koji je id napravio
+        "professor_id" => $professorId, // dynamic prof ID
         "date" => date('Y-m-d H:i:s'),
         "status" => "pending"
     ];
@@ -147,8 +147,8 @@ $messages = $messagesService->getAll();
 if (empty($messages)) {
     echo "No messages found. Inserting a test message...\n";
     $newMessage = [
-        "from_user_id" => $professorId, // Adjusted to use dynamic professor ID
-        "to_user_id" => 18, // Adjust based on your created user ID
+        "from_user_id" => $professorId, 
+        "to_user_id" => 18, 
         "content" => "Welcome to the course!",
         "reading" => 0
     ];
@@ -168,7 +168,7 @@ $livesessions = $livesessionsService->getAll();
 if (empty($livesessions)) {
     echo "No live sessions found. Inserting a test session...\n";
     $newSession = [
-        "professor_id" => $professorId, // Adjusted to use dynamic professor ID
+        "professor_id" => $professorId, 
         "title" => "First Live Session",
         "description" => "Introduction session",
         "scheduled_time" => date('Y-m-d H:i:s', strtotime('+1 day')),

@@ -13,6 +13,14 @@ error_reporting(E_ALL);
  *     )
  * )
  */
+/**
+ * @OA\SecurityScheme(
+ *   securityScheme="ApiKey",
+ *   type="apiKey",
+ *   in="header",
+ *   name="Authentication"
+ * )
+ */
 
 /**
  * @OA\Server(
