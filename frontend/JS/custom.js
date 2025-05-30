@@ -1,6 +1,52 @@
-function getUser() {
-    return JSON.parse(localStorage.getItem('loggedInUser'));
+// Admin: Load all bookings (admin view) as inline lines
+function loadAdminBookings() {
+  const user = getUser();
+  if (!user || user.role !== "admin") {
+    alert("Access denied.");
+    return;
+  }
+  const $container = $("#admin-bookings");
+  $container.empty();
+
+  $.ajax({
+    url: "http://localhost/MonaOmeragic/Web-programming/backend/appointments",
+    method: "GET",
+    beforeSend: function(xhr) {
+      const token = localStorage.getItem("user_token");
+      if (token) {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+        xhr.setRequestHeader("Authentication", token);
+      }
+    },
+    success: function(bookings) {
+      if (!Array.isArray(bookings) || bookings.length === 0) {
+        $container.append("<p>No bookings found.</p>");
+        return;
+      }
+      bookings.forEach(b => {
+        $container.append(`
+          <div class="booking-line" style="padding:10px; border-bottom:1px solid #ccc;">
+            Booking ID: ${b.id} | 
+            Student ID: ${b.student_id} | 
+            Professor ID: ${b.professor_id} | 
+            Date: ${b.date} | 
+            Status: ${b.status || 'N/A'}
+          </div>
+        `);
+      });
+    },
+    error: function() {
+      $container.append("<p class='text-danger'>Failed to load bookings.</p>");
+    }
+  });
 }
+
+function getUser() {
+  const token = localStorage.getItem("user_token");
+  const payload = token ? JSON.parse(atob(token.split('.')[1])) : null;
+  return payload ? payload.user : null;
+}
+
 
 function detectSubjectFromHash() {
     const hash = window.location.hash;
@@ -22,7 +68,69 @@ function detectSubjectFromHash() {
 }
 
 $(document).ready(function () {
-  console.log("Document is ready"); // Verify that jQuery is initialized properly
+function loadEditProfessors() {
+  const selectedSubject = $('#subjectFilter').val() || 'all'; // Ensure a default value of 'all' is used if nothing is selected
+  const container = $('#editProfessorsList');
+  container.empty();
+
+  $.ajax({
+    url: "http://localhost/MonaOmeragic/Web-programming/backend/users",
+    method: "GET",
+    beforeSend: function(xhr) {
+      const token = localStorage.getItem("user_token");
+      if (token) {
+        xhr.setRequestHeader("Authentication", token);
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+      }
+    },
+    success: function(users) {
+      users.forEach(u => {
+        if (typeof u.subjects === "string") {
+          u.subjects = [u.subjects];
+        } else if (!Array.isArray(u.subjects)) {
+          u.subjects = [];
+        }
+      });
+
+      const filteredUsers = users.filter(user =>
+        (user.role === 'professor' || user.role === 'assistant') &&
+        (selectedSubject === 'all' ||
+         (user.subjects && user.subjects.includes(selectedSubject.charAt(0).toUpperCase() + selectedSubject.slice(1)))
+        )
+      );
+
+      container.empty();
+
+      if (filteredUsers.length > 0) {
+        filteredUsers.forEach(user => {
+          container.append(`
+              <div class="user-card">
+                <p><strong>Name:</strong> ${user.username || user.name}</p>
+                <p><strong>Email:</strong> <input class="edit-email form-control" type="email" value="${user.email}" disabled></p>
+                <p><strong>Password:</strong> <input class="edit-password form-control" type="password" value="${user.password}" style="display: none;" disabled></p>
+                <p><strong>Role:</strong> ${user.role}</p>
+                <p><strong>Subjects:</strong> ${
+                  Array.isArray(user.subjects)
+                    ? user.subjects.join(', ')
+                    : (typeof user.subjects === "string" && user.subjects.length)
+                      ? user.subjects
+                      : "N/A"
+                }</p>
+                <button class="edit-user btn btn-primary" data-email="${user.email}">Edit</button>
+                <button class="delete-user btn btn-danger" data-id="${user.id}">Delete</button>
+              </div>
+          `);
+        });
+      } else {
+        container.append('<p>No professors or assistants found for the selected subject.</p>');
+      }
+    },
+    error: function(xhr) {
+      console.error("Error fetching staff:", xhr.responseText || xhr.statusText);
+      container.html("<p class='text-danger'>Failed to load staff. Please try again later.</p>");
+    }
+  });
+}
   // Profile photo upload handling
   $('#newUserPhoto').on('change', function() {
       const fileInput = this;
@@ -37,7 +145,6 @@ $(document).ready(function () {
       }
   });
   
-  // Display stored profile photo on page load
   const storedImage = localStorage.getItem('profilePhoto');
   if (storedImage) {
       $('#displayPhoto').attr('src', storedImage);
@@ -52,7 +159,7 @@ $(document).ready(function () {
       localStorage.setItem("materials", JSON.stringify([]));
   }
 
-  let app = $.spapp({ pageNotFound: 'error_404' }); // Initialize SPApp
+  let app = $.spapp({ pageNotFound: 'error_404' });
 
   let users = JSON.parse(localStorage.getItem("users")) || [];
   if (!users.find(u => u.email === "admin@admin.com")) {
@@ -61,67 +168,46 @@ $(document).ready(function () {
   }
   
   // DEV ONLY: Reset users if needed
-  // Uncomment to clear and reset user list
-  /*
-  localStorage.removeItem("users");
-  users = [];
-  users.push({ name: "Prof. John Smith", email: "johnsmith@example.com", password: "123456", role: "professor" });
-  users.push({ name: "Admin", email: "admin@admin.com", password: "admin123", role: "admin" });
-  localStorage.setItem("users", JSON.stringify(users));
-  */
-  console.log("Current users:", users);
-
-  // User-related functions
-  function getUser() {
-    return JSON.parse(localStorage.getItem("loggedInUser"));
-  }
 
   function saveUser(user) {
-    localStorage.setItem("loggedInUser", JSON.stringify(user));
+    // nothing to do; token is the source of truth
   }
 
   function logout() {
-    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("user_token");
     window.location.hash = "#login";
   }
 
-  function updateNavigation() {
-    const user = getUser();
+function updateNavigation() {
+  // Navigation display logic
+  $("#homeNav, #bookingNav, #manageBookingsNav, #adminBookingsNav, #manageUsersNav, #editProfessorsNav, #liveSessionsNav, #messagesNav, #materialsDropdown, #adminAddNav, #adminEditNav").hide();
+  const user = getUser();
+  const hash = window.location.hash;
 
-    if (user) {
-        $("#navbar").show();  // Show navbar if a user is logged in
-        $("#logoutButton").show().removeClass().addClass("btn btn-danger ms-3");
-        $("#appTitle").html('Appointment System <span id="appRole" style="font-size: 16px; font-family: Georgia, serif; color: red;">for ' + capitalizeFirstLetter(user.role) + '</span>');
+  if (hash === "#login" || hash === "#signup") {
+    $("#navbar").hide();
+    $("#logoutButton").hide();
+    return;
+  }
 
-        // Set visibility of navbar elements based on user role
-        $("#homeNav, #manageBookingsNav, #materialsDropdown").show();
-        $("#editProfessorsNav, #adminAddNav, #adminEditNav").hide();
+  if (user && hash !== "#login" && hash !== "#signup") {
+    $("#navbar, #logoutButton").show();
+    $("#appRole").text(capitalizeFirstLetter(user.role));
 
-        // Hide "Live Sessions" link for admin specifically
-        if (user.email === "admin@admin.com") {
-            $("#liveSessionsNav").hide(); // Hide for admin
-            addAdminNavigation(); // Show Admin-specific links (Add and Edit)
-        } else {
-            $("#liveSessionsNav").show(); // Show Live Sessions for professor and student
-        }
-
-        if (user.role === "admin") {
-            // For admin, show only specific links and ensure Messages link is always hidden
-            $("#homeNav, #manageBookingsNav, #materialsDropdown").hide();
-            $("#messagesNav").hide(); // Hide Messages link for admin
-        } else if (user.role === "professor") {
-            // For professor, adjust visibility and ensure Messages link is hidden
-            $("#homeNav").hide();
-            $("#messagesNav").hide();
-        } else if (user.role === "student") {
-            // For student, show messages if available
-            checkMessagesForStudent(user);
-        }
-    } else {
-        $("#navbar").hide(); // Hide navbar if no user is logged in
-        $("#logoutButton").hide(); // Hide logout button if no user is logged in
-        $("#appTitle").text('Appointment System');  // Default title
+    if (user.role === "admin") {
+      $("#manageUsersNav, #adminBookingsNav").show();
+      $("#adminAddNav, #adminEditNav").show(); // ensure custom admin links are also shown if present
+      addAdminNavigation();
+    } else if (user.role === "professor" || user.role === "assistant") {
+      $("#manageBookingsNav, #liveSessionsNav, #messagesNav, #materialsDropdown").show();
+    } else if (user.role === "student") {
+      $("#homeNav, #bookingNav, #manageBookingsNav, #messagesNav, #materialsDropdown, #liveSessionsNav").show();
     }
+  } else {
+    $("#navbar").hide();
+    $("#logoutButton").hide();
+    $("#appTitle").text('Appointment System');
+  }
 }
 
 function addAdminNavigation() {
@@ -145,14 +231,14 @@ function capitalizeFirstLetter(string) {
   // Application routes
   app.route({ view: 'login', load: 'login.html', onReady: updateNavigation });
   app.route({ view: 'signup', load: 'signup.html', onReady: updateNavigation });
-  app.route({ view: 'home', load: 'home.html', onReady: loadHome });
-  app.route({ view: 'manage-bookings', load: 'manage-bookings.html', onReady: loadManageBookings });
+  app.route({ view: 'home', load: 'home.html', onReady: function () { loadHome(); updateNavigation(); } });
+  app.route({ view: 'manage-bookings', load: 'manage-bookings.html', onReady: function () { loadManageBookings(); updateNavigation(); } });
   app.route({ view: 'booking', load: 'booking.html', onReady: loadBooking });
   app.route({ view: 'math-materials', load: 'math-materials.html', onReady: () => loadMaterialsPage("Mathematics") });
   app.route({ view: 'physics-materials', load: 'physics-materials.html', onReady: () => loadMaterialsPage("Physics") });
   app.route({ view: 'computer-science-materials', load: 'computer-science-materials.html', onReady: () => loadMaterialsPage("Computer Science") });
   app.route({ view: 'chemistry-materials', load: 'chemistry-materials.html', onReady: () => loadMaterialsPage("Chemistry") });
-  app.route({ view: 'manage-users', load: 'manage-users.html', onReady: loadUserManagement });
+  app.route({ view: 'manage-users', load: 'manage-users.html', onReady: function () { loadUserManagement(); updateNavigation(); } });
   app.route({ view: 'edit-professors', load: 'edit-professors.html', onReady: loadEditProfessors });
   app.route({ view: 'messages', load: 'messages.html', onReady: function() { console.log('Messages page loaded.'); loadMessages(); } });
   app.route({ view: 'live-session', load: 'live-session.html', onReady: function() {
@@ -170,58 +256,88 @@ function capitalizeFirstLetter(string) {
       displaySessions();
     }, 50);
   }});
+  // Admin bookings SPA route
+  app.route({
+    view: 'admin-bookings',
+    load: 'admin-bookings.html',
+    onReady: function() {
+      setTimeout(() => {
+        $("#admin-bookings").show();
+        loadAdminBookings();
+        updateNavigation();
+      }, 300);
+    }
+  });
   
 
   function loadHome() {
+    console.log(">>> Entering loadHome, user:", getUser(), "hash:", window.location.hash);
     const user = getUser();
     if (!user) {
       window.location.hash = "#login";
       return;
     }
-  
     updateNavigation();
-  
     const container = $("#professorList");
     if (!container.length) return;
-  
     container.empty();
-  
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const staffList = users.filter(u => u.role === "professor" || u.role === "assistant");
-  
-    if (staffList.length === 0) {
-      container.append("<p>No professors or assistants available at the moment.</p>");
-      return;
-    }
-  
-    // Dynamically extract all subjects from staffList
-    const subjectSet = new Set();
-    staffList.forEach(user => {
-      (user.subjects || []).forEach(subject => subjectSet.add(subject));
-    });
-    
-    subjectSet.forEach(subject => {
-      const subjectStaff = staffList.filter(user => user.subjects && user.subjects.includes(subject));
-      if (subjectStaff.length > 0) {
-        const box = $(`
-          <div class="subject-box mb-5 p-4 border rounded w-100 bg-light">
-            <h3>${subject}</h3>
-            <div class="staff-list d-flex flex-row flex-nowrap overflow-auto gap-3"></div>
-          </div>
-        `);
-    
-        subjectStaff.forEach(staff => {
-          box.find(".staff-list").append(`
-            <div class="user-card p-3 border rounded flex-shrink-0" style="width: 280px;">
-              <p><strong>Name:</strong> ${staff.name}</p>
-              <p><strong>Email:</strong> ${staff.email}</p>
-              <p><strong>Role:</strong> ${staff.role}</p>
-              <button class="btn btn-primary" onclick="goToBooking('${staff.name}', '${subject}')">Book</button>
-            </div>
-          `);
+    $.ajax({
+      url: "http://localhost/MonaOmeragic/Web-programming/backend/users/staff",
+      method: "GET",
+      beforeSend: function(xhr) {
+        const token = localStorage.getItem("user_token");
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token);
+          xhr.setRequestHeader("Authentication", token);
+        }
+      },
+      success: function(users) {
+        users.forEach(u => {
+          if (typeof u.subjects === "string") {
+            u.subjects = [u.subjects];
+          }
         });
-    
-        container.append(box);
+        const staffList = users.filter(u => {
+          const hasSubjects = u.subjects && Array.isArray(u.subjects) && u.subjects.length > 0;
+          return (u.role === "professor" || u.role === "assistant") && hasSubjects;
+        });
+        if (staffList.length === 0) {
+          container.append("<p>No professors or assistants available at the moment.</p>");
+          return;
+        }
+        const subjectSet = new Set();
+        staffList.forEach(user => {
+          if (!user.subjects) return;
+          user.subjects.forEach(subject => subjectSet.add(subject));
+        });
+        subjectSet.forEach(subject => {
+          const subjectStaff = staffList.filter(user => {
+            if (!user.subjects) return false;
+            return user.subjects.includes(subject);
+          });
+          if (subjectStaff.length > 0) {
+            const box = $(`
+              <div class="subject-box mb-5 p-4 border rounded w-100 bg-light">
+                <h3>${subject}</h3>
+                <div class="staff-list d-flex flex-row flex-nowrap overflow-auto gap-3"></div>
+              </div>
+            `);
+            subjectStaff.forEach(staff => {
+              box.find(".staff-list").append(`
+                <div class="user-card p-3 border rounded flex-shrink-0" style="width: 280px;">
+                  <p><strong>Name:</strong> ${staff.name || staff.username}</p>
+                  <p><strong>Email:</strong> ${staff.email}</p>
+                  <p><strong>Role:</strong> ${staff.role}</p>
+                  <button class="btn btn-primary" onclick="goToBooking('${staff.name || staff.username}', '${subject}', ${staff.id})">Book</button>
+                </div>
+              `);
+            });
+            container.append(box);
+          }
+        });
+      },
+      error: function(xhr) {
+        console.error(">>> Error in loadHome AJAX:", xhr.status, xhr.responseText);
       }
     });
   }
@@ -305,7 +421,6 @@ function capitalizeFirstLetter(string) {
     }, 100);  // Delay to ensure the element is loaded
   }
 
-  // Ensure materials page loads when accessed
   $(document).on("click", "#materialsDropdown a", function (e) {
     e.preventDefault();
     let subject = $(this).text().trim();
@@ -315,45 +430,12 @@ function capitalizeFirstLetter(string) {
     loadMaterialsPage(subject);
     window.location.hash = subject.toLowerCase().replace(/\s+/g, '-') + "-materials";
   });
-  
- // Adjust the loadEditProfessors function to handle subject filtering
-function loadEditProfessors() {
-  const selectedSubject = $('#subjectFilter').val() || 'all'; // Ensure a default value of 'all' is used if nothing is selected
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-  const container = $('#editProfessorsList');
-  container.empty();
- 
-  let filteredUsers;
-  if (selectedSubject === 'all') {
-      filteredUsers = users.filter(user => user.role === 'professor' || user.role === 'assistant');
-  } else {
-      filteredUsers = users.filter(user => (user.subjects && user.subjects.includes(selectedSubject)) && (user.role === 'professor' || user.role === 'assistant'));
-  }
- 
-  if (filteredUsers.length > 0) {
-      filteredUsers.forEach(user => {
-          container.append(`
-              <div class="user-card">
-                <p><strong>Name:</strong> ${user.name}</p>
-                <p><strong>Email:</strong> <input class="edit-email form-control" type="email" value="${user.email}" disabled></p>
-                <p><strong>Password:</strong> <input class="edit-password form-control" type="password" value="${user.password}" style="display: none;" disabled></p>
-                <p><strong>Role:</strong> ${user.role}</p>
-                <p><strong>Subjects:</strong> ${user.subjects ? user.subjects.join(', ') : ''}</p>
-                <button class="edit-user btn btn-primary" data-email="${user.email}">Edit</button>
-                <button class="delete-user btn btn-danger" data-email="${user.email}">Delete</button>
-              </div>
-          `);
-      });
-  } else {
-      container.append('<p>No professors or assistants found for the selected subject.</p>');
-  }
-}
 
-// Ensure the dropdown changes trigger the list update
+  // Update list when subject dropdown changes
   $(document).on("change", "#subjectFilter", function () {
     loadEditProfessors();
   });
-  // Ensure selected subject is correctly retrieved before uploading
+  // Upload material handler
   $(document).on("click", "#uploadMaterialBtn", function () {
     console.log("Upload button clicked"); // Debugging
     const subject = localStorage.getItem("selectedSubject");
@@ -410,6 +492,7 @@ function loadEditProfessors() {
       alert("No subject selected. Please select a subject from the dropdown.");
       return;
     }
+    
 
     if (confirm("Are you sure you want to delete this material?")) {
       uploadedFiles.splice(index, 1);
@@ -418,140 +501,220 @@ function loadEditProfessors() {
     }
   });
 
-  $(document).on("click", "#confirmBooking", function () {
-    const user = getUser();
-    if (!user || user.role !== "student") {
-      alert("Only students can book appointments.");
-      return;
-    }
+  $(document).on("click", "#submitBookingBtn, #confirmBooking", function () {
+      const user = getUser();
+      if (!user || user.role !== "student") {
+          alert("Only students can book appointments.");
+          return;
+      }
 
-    const professorName = $("#bookingProfessorName").text();
-    const date = $("#appointmentDate").val();
-    const time = $("#appointmentTime").val();
+      // Retrieve selected professor info
+      const professorName = localStorage.getItem("selectedProfessorName");
+      const professorSubject = localStorage.getItem("selectedProfessorSubject");
+      const professorId = parseInt(localStorage.getItem("selectedProfessorId"), 10);
 
-    if (!professorName || !date || !time) {
-      alert("Please select a valid professor, date, and time.");
-      return;
-    }
+      const bookingDate = $("#appointmentDate").val();
+      const bookingTime = $("#appointmentTime").val();
 
-    const booking = {
-      professor: professorName,
-      student: user.name,
-      date: date,
-      time: time
-    };
+      // Defensive: ensure all required fields are present
+      if (!professorName || !bookingDate || !bookingTime || !professorId || isNaN(professorId)) {
+          alert("Please select a valid professor, date, and time.");
+          return;
+      }
 
-    let existingBookings = JSON.parse(localStorage.getItem("bookings")) || [];
-    existingBookings.push(booking);
-    localStorage.setItem("bookings", JSON.stringify(existingBookings));
+      const dateTime = `${bookingDate} ${bookingTime}`;
+      const bookingData = {
+          student_id: user.id,
+          professor_id: professorId,
+          date: dateTime
+      };
 
-    alert("Appointment booked successfully!");
-    window.location.hash = "#manage-bookings";
+      // Debug: print booking payload
+      console.log("Booking payload:", bookingData);
+
+      // Ensure the correct Authorization header is sent
+      if (typeof AppointmentService.create === "function") {
+          AppointmentService.create(
+              bookingData,
+              function() {
+                  alert("Appointment booked successfully!");
+                  window.location.hash = "#manage-bookings";
+                  loadManageBookings();
+              },
+              function(xhr) {
+                  const msg = xhr.responseJSON?.error || xhr.responseText || xhr.statusText;
+                  alert("Error booking appointment: " + msg);
+              }
+          );
+      } else {
+          // Fallback: direct AJAX if service isn't wired up
+          $.ajax({
+              url: "http://localhost/MonaOmeragic/Web-programming/backend/appointments",
+              method: "POST",
+              contentType: "application/json",
+              data: JSON.stringify(bookingData),
+              beforeSend: function(xhr) {
+                  const token = localStorage.getItem("user_token");
+                  if (token) {
+                      xhr.setRequestHeader("Authorization", "Bearer " + token);
+                      xhr.setRequestHeader("Authentication", token);
+                  }
+              },
+              success: function() {
+                  alert("Appointment booked successfully!");
+                  window.location.hash = "#manage-bookings";
+                  loadManageBookings();
+              },
+              error: function(xhr) {
+                  const msg = xhr.responseJSON?.error || xhr.responseText || xhr.statusText;
+                  alert("Error booking appointment: " + msg);
+              }
+          });
+      }
   });
 
   // Display bookings
   function loadBookings(user) {
-    const bookings = JSON.parse(localStorage.getItem("bookings")) || [];
-    const bookingsList = $("#bookingsList");
+    if (!user) return;
+    if (typeof AppointmentService.list === "function" && AppointmentService.list.length >= 2) {
+      AppointmentService.list(
+        function(bookings) {
+          $.ajax({
+            url: "http://localhost/MonaOmeragic/Web-programming/backend/users",
+            method: "GET",
+            beforeSend: function (xhr) {
+              const tk = localStorage.getItem("user_token");
+              if (tk) {
+                xhr.setRequestHeader("Authorization", "Bearer " + tk);
+                xhr.setRequestHeader("Authentication", tk);
+              }
+            },
+            success: function (staff) {
+              window.__userMap = {};
+              (staff || []).forEach(u => window.__userMap[Number(u.id)] = u);
 
-    bookingsList.empty();
+              finishRender(bookings);
+            },
+            error: function () {
+              window.__userMap = {};
+              finishRender(bookings);
+            }
+          });
 
-    if (user.role === "professor") {
-      let professorHasBookings = false;
-      bookings.forEach((booking, index) => {
-        if (booking.professor === user.name) {
-          professorHasBookings = true;
-          bookingsList.append(`
-            <div class="booking-card">
-              <p><strong>Student:</strong> ${booking.student}</p>
-              <p><strong>Date:</strong> ${booking.date}</p>
-              <p><strong>Time:</strong> ${booking.time}</p>
-              <div class="confirmation-area">
-                ${booking.confirmed ? '<p class="text-success mt-2">Confirmed</p>' : ''}
-              </div>
-              ${!booking.confirmed ? `<button class="confirm-booking btn btn-success" data-index="${index}">Confirm</button>` : ''}
-              <button class="delete-booking btn btn-danger" data-index="${index}">Cancel</button>
-              <button class="btn btn-outline-primary send-message-btn " data-student="${booking.student}">Message</button>
-              <textarea class="form-control mt-2 message-input" placeholder="Write a message..." style="display: none;"></textarea>
-              <button class="btn btn-sm btn-secondary mt-1 send-message-submit" style="display: none;">Send</button>
-            </div>
-          `);
+          function finishRender(bookings) {
+            bookings.forEach(b => {
+              if (b.date) {
+                const parts = b.date.split(" ");
+                b.originalDate = parts[0];
+                b.originalTime = parts[1] || "";
+              }
+            });
+            bookings.forEach(b => {
+              if (b.date && !b.time) {
+                const parts = b.date.split(" ");
+                b.date = parts[0];
+                b.time = parts[1] || "";
+              }
+              const prof = window.__userMap[b.professor_id];
+              b.professor = prof ? (prof.username || prof.name || prof.email) : "Unknown";
+            });
+
+            bookings.forEach(b => {
+              const student = window.__userMap[b.student_id];
+              b.studentName = student?.name || student?.username || "Unknown";
+              b.studentEmail = student?.email || "Unknown";
+            });
+
+            const bookingsList = $("#bookingsList");
+            bookingsList.empty();  // Ensure old cards are cleared before re-rendering
+            if (user.role === "professor") {
+              let professorHasBookings = false;
+              bookings.forEach((booking, index) => {
+                if (Number(booking.professor_id) === Number(user.id)) {
+                  professorHasBookings = true;
+                  bookingsList.append(`
+                    <div class="booking-card">
+                      <p><strong>Student:</strong> ${booking.studentName}</p>
+                      <p><strong>Email:</strong> ${booking.studentEmail}</p>
+                      <p><strong>Appointment Date:</strong> ${booking.originalDate || booking.date?.split(" ")[0] || "Unknown"}</p>
+                      <p><strong>Appointment Time:</strong> ${booking.originalTime || booking.time || (booking.date?.split(" ")[1]) || "Unknown"}</p>
+                      ${
+                        booking.status === "confirmed" && booking.confirmed_at
+                          ? `<p><strong>Confirmed Time:</strong> ${booking.confirmed_at.split(" ")[1]}</p>`
+                          : ""
+                      }
+                      <div class="confirmation-area">
+                        ${
+                          booking.status === "confirmed"
+                            ? '<p class="text-success mt-2">Confirmed</p>'
+                            : booking.status === "canceled"
+                            ? '<p class="text-danger mt-2">Canceled</p>'
+                            : '<p class="text-warning mt-2">Pending Confirmation</p>'
+                        }
+                      </div>
+                      ${!booking.confirmed ? `<button class="confirm-booking btn btn-success" data-index="${index}">Confirm</button>` : ''}
+                      <button class="delete-booking btn btn-danger" data-id="${booking.id}">Cancel</button>
+                      <button class="btn btn-outline-primary send-message-btn " data-student="${booking.studentName}">Message</button>
+                      <textarea class="form-control mt-2 message-input" placeholder="Write a message..." style="display: none;"></textarea>
+                      <button class="btn btn-sm btn-secondary mt-1 send-message-submit" style="display: none;">Send</button>
+                    </div>
+                  `);
+                }
+              });
+              if (!professorHasBookings) {
+                bookingsList.append("<p>No bookings available.</p>");
+              }
+            } else {
+              const studentBookings = bookings;   // backend already returns only this student's bookings
+              if (studentBookings.length === 0) {
+                bookingsList.append("<p>You have no appointments.</p>");
+              } else {
+                studentBookings.forEach((booking, index) => {
+                  bookingsList.append(`
+                    <div class="booking-card">
+                      <p><strong>Professor:</strong> ${booking.professor}</p>
+                      <p><strong>Date:</strong> ${booking.date}</p>
+                      <p><strong>Time:</strong> ${booking.time}</p>
+                      ${
+                        booking.status === "confirmed"
+                          ? '<p class="text-success">Confirmed</p>'
+                          : booking.status === "canceled"
+                          ? '<p class="text-danger">Canceled</p>'
+                          : '<p class="text-warning">Pending Confirmation</p>'
+                      }
+                      <button class="delete-booking btn btn-danger" data-id="${booking.id}">Cancel</button>
+                    </div>
+                  `);
+                });
+              }
+            }
+          }
+        },
+        function(xhr) {
+          console.error("Error loading bookings:", xhr.responseText);
+          $("#bookingsList").html("<p class='text-danger'>Failed to load bookings.</p>");
+        },
+        {
+          beforeSend: function(xhr) {
+            const token = localStorage.getItem("user_token");
+            if (token) {
+              xhr.setRequestHeader("Authorization", "Bearer " + token);
+              xhr.setRequestHeader("Authentication", token);
+            }
+          }
         }
-      });
-      if (!professorHasBookings) {
-        bookingsList.append("<p>No bookings available.</p>");
-      }
-    } else {
-      const studentBookings = bookings.filter(booking => booking.student === user.name);
-      if (studentBookings.length === 0) {
-        bookingsList.append("<p>You have no appointments.</p>");
-      } else {
-        studentBookings.forEach((booking, index) => {
-          bookingsList.append(`
-            <div class="booking-card">
-              <p><strong>Professor:</strong> ${booking.professor}</p>
-              <p><strong>Date:</strong> ${booking.date}</p>
-              <p><strong>Time:</strong> ${booking.time}</p>
-              ${booking.confirmed ? '<p class="text-success">Confirmed</p>' : '<p class="text-warning">Pending Confirmation</p>'}
-              <button class="delete-booking btn btn-danger" data-index="${index}">Cancel</button>
-            </div>
-          `);
-        });
-      }
+      );
     }
   }
 
-  // Login form submission
-  $(document).on("submit", "#loginForm", function (e) {
-    e.preventDefault();
-    const email = $("#loginEmail").val();
-    const password = $("#loginPassword").val();
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const user = users.find(u => u.email === email && u.password === password);
 
-    if (user) {
-        saveUser(user);  // Store logged-in user
-        updateNavigation();  // Update navbar right after login
-
-        // Redirect based on user role
-        if (user.role === "admin") {
-            // Redirect admins to Manage Users (Add Professors/Assistants page)
-            window.location.hash = "#manage-users";
-        } else if (user.role === "professor") {
-            // Redirect professors to Manage Bookings
-            window.location.hash = "#manage-bookings";
-        } else {
-            // Redirect students to Home
-            window.location.hash = "#home";
-        }
-    } else {
-        alert("Invalid email or password");
-    }
-});
-
-  // Signup form submission
-  $(document).on("submit", "#signupForm", function (e) {
-    e.preventDefault();
-    const name = $("#signupName").val();
-    const email = $("#signupEmail").val();
-    const password = $("#signupPassword").val();
-
-    if (registerUser(name, email, password)) {
-      alert("Signup successful. Please login.");
-      window.location.hash = "#login";
-    }
-  });
-
-  function validateUser(email, password) {
-    const storedUser = JSON.parse(localStorage.getItem("testUser")) || null;
-    if (storedUser && storedUser.email === email && storedUser.password === password) {
-      return storedUser;
-    }
-    return null;
-  }
+  // Deprecated: validateUser handled by backend
 
   function registerUser(name, email, password) {
+    // AJAX-based registration expected
     let role = email.endsWith("@stu.ba") ? "student" : "professor";
+    // Optionally: send AJAX to backend for registration
+    // For now, fallback to localStorage for demo
     let users = JSON.parse(localStorage.getItem("users")) || [];
     users.push({ name, email, password, role });
     localStorage.setItem("users", JSON.stringify(users));
@@ -560,9 +723,10 @@ function loadEditProfessors() {
 
   $(document).on("click", "#logoutButton", logout);
 
-  window.goToBooking = function(professorName, subject) {
+  window.goToBooking = function(professorName, subject, professorId) {
     localStorage.setItem("selectedProfessorName", professorName);
     localStorage.setItem("selectedProfessorSubject", subject);
+    localStorage.setItem("selectedProfessorId", professorId);
     window.location.hash = "#booking";
   };
 
@@ -588,72 +752,122 @@ function loadEditProfessors() {
     disablePastDates();
   }
 
-  // New helper function to get booked times
-  function getBookedTimes(selectedDate) {
-    const bookings = JSON.parse(localStorage.getItem("bookings")) || [];
-    return bookings
-        .filter(booking => booking.date === selectedDate)
-        .map(booking => booking.time);
+  function disablePastDates() {
+    const today = new Date().toISOString().split('T')[0];
+    $("#appointmentDate").attr("min", today);
   }
 
-  // New function to populate time dropdown dynamically based on booked times
+  function getBookedTimes(professorId, selectedDate, cb) {
+    const safeCB = typeof cb === "function" ? cb : function () {};
+    if (!professorId || !selectedDate) return safeCB([]);
+    let normalizedDate = selectedDate;
+    if (typeof normalizedDate === "string") {
+      if (/^\d{2}\.\d{2}\.\d{4}$/.test(normalizedDate)) {
+        const [day, month, year] = normalizedDate.split(".");
+        normalizedDate = `${year}-${month}-${day}`;
+      }
+    }
+    let dateObj = new Date(normalizedDate);
+    if (isNaN(dateObj.getTime())) {
+      dateObj = new Date(Date.parse(normalizedDate));
+    }
+    if (isNaN(dateObj.getTime())) {
+      return safeCB([]);
+    }
+
+    $.ajax({
+      url:
+        "http://localhost/MonaOmeragic/Web-programming/backend/appointments?professor_id=" +
+        professorId,
+      method: "GET",
+      beforeSend: function (xhr) {
+        const token = localStorage.getItem("user_token");
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token);
+          xhr.setRequestHeader("Authentication", token);
+        }
+      },
+      success: function (bookings) {
+        const isoDate = new Date(selectedDate).toISOString().split("T")[0]; // converts any valid date to YYYY-MM-DD
+        console.log("📆 Formatted selected date:", isoDate);
+        console.log("📋 Raw bookings returned:", bookings);
+
+        const times = (bookings || [])
+          .filter(b => Number(b.professor_id) === Number(professorId))
+          .filter(b => b.date && b.date.startsWith(isoDate))
+          .map(b => {
+            const parts = b.date.split(" ");
+            const time = (parts[1] || "").slice(0, 5);
+            console.log("⏰ Disabled time:", time);
+            return time;
+          });
+
+        safeCB(times);
+      },
+      error: function () {
+        safeCB([]);
+      },
+    });
+  }
+
   function populateTimeDropdown() {
     const timeSelect = document.getElementById("appointmentTime");
     if (!timeSelect) return;
 
-    timeSelect.innerHTML = "";
     const selectedDate = $("#appointmentDate").val();
-    const bookedTimes = getBookedTimes(selectedDate);
+    const professorId = parseInt(localStorage.getItem("selectedProfessorId"), 10);
 
-    for (let hour = 9; hour <= 17; hour++) {
+    // First clear any existing options
+    timeSelect.innerHTML = "";
+
+    getBookedTimes(professorId, selectedDate, function (bookedTimes) {
+      for (let hour = 9; hour <= 17; hour++) {
         for (let minute = 0; minute < 60; minute += 30) {
-            const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-            const option = document.createElement("option");
-            option.value = time;
-            option.textContent = time;
-            
-            if (bookedTimes.includes(time)) {
-                option.disabled = true; // Disable booked times
-            }
+          const time = `${hour.toString().padStart(2, "0")}:${minute
+            .toString()
+            .padStart(2, "0")}`;
+          const option = document.createElement("option");
+          option.value = time;
+          option.textContent = time;
 
-            timeSelect.appendChild(option);
+          if (bookedTimes.includes(time)) {
+            option.disabled = true; // Disable already‑booked slots
+          }
+
+          timeSelect.appendChild(option);
         }
-    }
+      }
+    });
   }
 
-  // Ensure the dropdown updates when the date changes
   $(document).on("change", "#appointmentDate", populateTimeDropdown);
-
-  $(document).on("click", ".delete-booking", function () {
-    const index = $(this).data("index");
-    let bookings = JSON.parse(localStorage.getItem("bookings")) || [];
-
-    if (confirm("Are you sure you want to delete this booking?")) {
-        bookings.splice(index, 1);
-        localStorage.setItem("bookings", JSON.stringify(bookings));
-        loadBookings(getUser());
-        
-        // Update the time dropdown dynamically so deleted times become available again
-        populateTimeDropdown();
-    }
-  });
 
   $(document).on("click", ".confirm-booking", function () {
     const index = $(this).data("index");
-    let bookings = JSON.parse(localStorage.getItem("bookings")) || [];
-    if (!bookings[index]) return;
+    const bookingCard = $(".booking-card").eq(index);
+    const bookingId = bookingCard.find(".delete-booking").data("id");
 
-    // Simulate sending email with meeting link
-    alert("Simulated email sent with meeting link to the student.");
-
-    bookings[index].confirmed = true;
-    localStorage.setItem("bookings", JSON.stringify(bookings));
-
-    // Update the UI by reloading bookings
-    loadBookings(getUser());
+    $.ajax({
+      url: `http://localhost/MonaOmeragic/Web-programming/backend/appointments/confirm/${bookingId}`,
+      method: "PATCH",
+      beforeSend: function (xhr) {
+        const token = localStorage.getItem("user_token");
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token);
+          xhr.setRequestHeader("Authentication", token);
+        }
+      },
+      success: function () {
+        alert("Appointment confirmed.");
+        loadBookings(getUser());
+      },
+      error: function (xhr) {
+        const msg = xhr.responseJSON?.error || xhr.responseText || xhr.statusText;
+        alert("Error confirming: " + msg);
+      }
+    });
   });
 
-  // Ensure correct subject is loaded when navigating to materials pages
   $(document).ready(function () {
       let currentHash = window.location.hash;
       const subjectMap = {
@@ -678,12 +892,78 @@ function loadEditProfessors() {
       const newSubject = detectSubjectFromHash();
       if (newSubject) {
           localStorage.setItem("selectedSubject", newSubject);
-          console.log("Hash changed. Updated subject to:", newSubject);
           loadMaterialsPage(newSubject);
       }
   });
   app.run();
   updateNavigation();
+
+});
+
+// Login form submission (delegated)
+$(document).on('submit', '#login-form', function(e) {
+  e.preventDefault();
+  const email = $('#loginEmail').val();
+  const password = $('#loginPassword').val();
+  $.ajax({
+    url: 'http://localhost/MonaOmeragic/Web-programming/backend/auth/login',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ email, password }),
+    success(result) {
+      localStorage.setItem('user_token', result.data.token);
+      const user = JSON.parse(atob(result.data.token.split('.')[1])).user;
+
+      if (user.role === 'admin') {
+        window.location.hash = '#manage-users';
+      } else if (user.role === 'professor') {
+        window.location.hash = '#manage-bookings';
+      } else {
+        window.location.hash = '#home';
+      }
+
+      setTimeout(() => {
+        window.dispatchEvent(new Event("hashchange"));
+        updateNavigation();
+        $("#navbar").show();
+      }, 150);
+    },
+    error(xhr, status, error) {
+      console.error('Login error:', status, error, xhr.responseText);
+      const msg = xhr.responseJSON?.error || xhr.responseText || xhr.statusText;
+      alert('Login failed: ' + msg);
+    }
+  });
+});
+
+// Signup form submission (delegated, student only)
+$(document).off('submit', '#signup-form').on('submit', '#signup-form', function(e) {
+  e.preventDefault();
+  console.log('Signup form submitted');  // DEBUG
+
+  const username = $('#signupUsername').val();
+  const email    = $('#signupEmail').val();
+  const password = $('#signupPassword').val();
+
+  const url = 'http://localhost/MonaOmeragic/Web-programming/backend/auth/register';
+  console.log('Posting to:', url, { username, email, password });  // DEBUG
+
+  $.ajax({
+    url: url,
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ username, email, password, role: "student" }),
+    success() {
+      console.log('Signup success');
+      alert('Registration successful! Please log in.');
+      window.location.hash = '#login';
+    },
+    error(xhr) {
+      console.error('Signup error', xhr);
+      const msg = xhr.responseJSON?.error || xhr.responseText || xhr.statusText;
+      alert('Signup failed: ' + msg);
+    }
+  });
 });
 
 $(document).on("click", ".edit-user", function () {
@@ -721,12 +1001,31 @@ $(document).on("click", ".edit-user", function () {
 });
 
 $(document).on("click", "#editProfessorsList .delete-user", function () {
-  const email = $(this).data("email");
-  let users = JSON.parse(localStorage.getItem("users")) || [];
-  users = users.filter(u => u.email !== email);
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("User deleted successfully!");
-  $(`.delete-user[data-email="${email}"]`).closest(".user-card").remove();
+  const id = $(this).data("id");
+
+  if (!confirm("Are you sure you want to delete this user?")) return;
+
+  $.ajax({
+    url: `http://localhost/MonaOmeragic/Web-programming/backend/users/${id}`,
+    method: "DELETE",
+    beforeSend: function (xhr) {
+      const token = localStorage.getItem("user_token");
+      if (token) {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+        xhr.setRequestHeader("Authentication", token);
+      }
+    },
+    success: function () {
+      alert("User deleted successfully from the database!");
+      $(`#editProfessorsList .delete-user[data-id='${id}']`).closest('.user-card').remove();
+      // Optionally refresh list if you want the filter to reapply:
+      // setTimeout(loadEditProfessors, 250);
+    },
+    error: function (xhr) {
+      const msg = xhr.responseJSON?.error || xhr.statusText;
+      alert("Error deleting user: " + msg);
+    }
+  });
 });
 
 function loadUserManagement() {
@@ -739,41 +1038,74 @@ function loadUserManagement() {
 
   const usersList = $("#usersList");
   usersList.empty();
-  const users = JSON.parse(localStorage.getItem("users")) || [];
+  $.ajax({
+    url: "http://localhost/MonaOmeragic/Web-programming/backend/users",
+    method: "GET",
+    beforeSend: function(xhr) {
+      const token = localStorage.getItem("user_token");
+      if (token) {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+        xhr.setRequestHeader("Authentication", token);
+      }
+    },
+    success: function(users) {
+      users.forEach(u => {
+        if (typeof u.subjects === "string") {
+          u.subjects = [u.subjects];
+        } else if (!Array.isArray(u.subjects)) {
+          u.subjects = [];
+        }
+      });
+      users.forEach((u, index) => {
+        if (u.role !== "admin") {
+          usersList.append(`
+            <div class="user-card">
+              <p><strong>Name:</strong> ${u.username || u.name}</p>
+              <p><strong>Email:</strong> ${u.email}</p>
+              <p><strong>Role:</strong> ${u.role}</p>
+              <p><strong>Subjects:</strong> ${
+                Array.isArray(u.subjects)
+                  ? u.subjects.join(', ')
+                  : (typeof u.subjects === "string" && u.subjects.length)
+                    ? u.subjects
+                    : "N/A"
+              }</p>
+              <button class="delete-user btn btn-danger" data-index="${index}">Delete</button>
+            </div>
+          `);
+        }
+      });
 
-  users.forEach((u, index) => {
-    if (u.role !== "admin") {
-      usersList.append(`
-        <div class="user-card">
-          
-          <p><strong>Name:</strong> ${u.name}</p>
-          <p><strong>Email:</strong> ${u.email}</p>
-          <p><strong>Role:</strong> ${u.role}</p>
-          <p><strong>Subjects:</strong> ${u.subjects ? u.subjects.join(', ') : "N/A"}</p>
-          <button class="delete-user btn btn-danger" data-index="${index}">Delete</button>
-        </div>
-      `);
+      const staffList = users.filter(u => u.role === "professor" || u.role === "assistant");
+
+      if (staffList.length > 0) {
+        usersList.append("<h3>All Professors and Assistants</h3>");
+        staffList.forEach((staff, index) => {
+          usersList.append(`
+            <div class="user-card">
+              <p><strong>Name:</strong> ${staff.name}</p>
+              <p><strong>Email:</strong> ${staff.email}</p>
+              <p><strong>Role:</strong> ${staff.role}</p>
+              <p><strong>Subjects:</strong> ${
+                Array.isArray(staff.subjects)
+                  ? staff.subjects.join(', ')
+                  : (typeof staff.subjects === "string" && staff.subjects.length)
+                    ? staff.subjects
+                    : "N/A"
+              }</p>
+              <button class="delete-user btn btn-danger" data-index="${index}">Delete</button>
+            </div>
+          `);
+        });
+      } else {
+        usersList.append("<p>No professors or assistants added yet.</p>");
+      }
+    },
+    error: function(xhr) {
+      const msg = xhr.responseJSON?.error || xhr.statusText;
+      alert("Error loading users: " + msg);
     }
   });
-  
-  const staffList = users.filter(u => u.role === "professor" || u.role === "assistant");
-  
-  if (staffList.length > 0) {
-    usersList.append("<h3>All Professors and Assistants</h3>");
-    staffList.forEach((staff, index) => {
-      usersList.append(`
-        <div class="user-card">
-          <p><strong>Name:</strong> ${staff.name}</p>
-          <p><strong>Email:</strong> ${staff.email}</p>
-          <p><strong>Role:</strong> ${staff.role}</p>
-          <p><strong>Subjects:</strong> ${staff.subjects ? staff.subjects.join(', ') : "N/A"}</p>
-          <button class="delete-user btn btn-danger" data-index="${index}">Delete</button>
-        </div>
-      `);
-    });
-  } else {
-    usersList.append("<p>No professors or assistants added yet.</p>");
-  }
 }
 
 $(document).on("click", "#addUserBtn", function () {
@@ -788,38 +1120,84 @@ $(document).on("click", "#addUserBtn", function () {
     return;
   }
 
-  let users = JSON.parse(localStorage.getItem("users")) || [];
-  if (users.some(u => u.email === email)) {
-    alert("Email already in use. Please use a different email.");
-    return;
-  }
-
   const newUser = {
-    name,
+    username: name,
     email,
     password,
     role,
     subjects: [subject]
   };
 
-  users.push(newUser);
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("User added successfully!");
+  console.log("📦 Submitting user:", newUser);
+  console.log("🔐 Sending token:", localStorage.getItem("user_token"));
 
-  // Reset the form
-  $("#addUserForm")[0].reset();
-
-  // Redirect to edit-professors to immediately show the update
-  window.location.hash = "#edit-professors";
+  $.ajax({
+    url: 'http://localhost/MonaOmeragic/Web-programming/backend/users',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(newUser),
+    beforeSend: function(xhr) {
+      const token = localStorage.getItem("user_token");
+      if (token) {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+        xhr.setRequestHeader("Authentication", token);
+      }
+    },
+    success: function () {
+      alert("User added successfully and saved to the database!");
+      $("#addUserForm")[0].reset();
+      window.location.hash = "#edit-professors";
+      loadEditProfessors();
+    },
+    error: function (xhr) {
+      const msg = xhr.responseJSON?.error || xhr.statusText;
+      alert("Error adding user: " + msg);
+    }
+  });
 });
 
-$(document).on("click", ".delete-user", function () {
-  const email = $(this).data("email");
-  let users = JSON.parse(localStorage.getItem("users")) || [];
-  users = users.filter(u => u.email !== email);
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("User deleted successfully!");
-  loadEditProfessors();
+// Cancel or delete an appointment
+$(document).on("click", ".delete-booking", function () {
+  const id = Number($(this).data("id"));
+  if (!id) {
+    alert("Unable to determine appointment ID.");
+    return;
+  }
+  if (!confirm("Are you sure you want to cancel this appointment?")) return;
+
+  $.ajax({
+    url: `http://localhost/MonaOmeragic/Web-programming/backend/appointments/${id}`,
+    method: "DELETE",
+    beforeSend(xhr) {
+      const tk = localStorage.getItem("user_token");
+      if (tk) {
+        xhr.setRequestHeader("Authorization", "Bearer " + tk);
+        xhr.setRequestHeader("Authentication", tk);
+      }
+    },
+    complete(xhr) {
+      const response = xhr.responseJSON || {};
+      const msg =
+        response.message ||
+        response.error ||
+        xhr.responseText ||
+        xhr.statusText;
+
+      if (
+        xhr.status === 200 ||
+        xhr.status === 204 ||
+        (typeof msg === "string" && msg.toLowerCase().includes("appointment deleted successfully"))
+      ) {
+        alert("Appointment cancelled successfully.");
+        $(`[data-id='${id}']`).closest(".booking-card").remove();
+        if (typeof populateTimeDropdown === "function" && window.location.hash === "#booking") {
+          populateTimeDropdown();
+        }
+      } else {
+        alert("Error cancelling appointment: " + msg);
+      }
+    }
+  });
 });
 
 $(document).on("click", ".send-message-btn", function () {
@@ -994,7 +1372,7 @@ function rsvpSession(sessionId) {
   }
 }
 
-// Call displaySessions initially to show any stored sessions
+// Show stored live sessions
 function loadMessages() {
     const user = getUser();
     if (!user || user.role !== 'student') return;
@@ -1035,9 +1413,10 @@ function loadMessages() {
     });
 }
 
-// Ensure loadMessages() is called when navigating back to the messages page
+// Load messages when navigating to the messages page
 window.addEventListener("hashchange", () => {
   if (window.location.hash === "#messages") {
     loadMessages();
   }
 });
+

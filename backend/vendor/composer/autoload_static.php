@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit823e92ae3d3deceb390860de731975bf
+class ComposerStaticInitc7630bcbf0a4606e4d6dd839839cf5b7
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -28,6 +28,10 @@ class ComposerStaticInit823e92ae3d3deceb390860de731975bf
         'O' => 
         array (
             'OpenApi\\' => 8,
+        ),
+        'F' => 
+        array (
+            'Firebase\\JWT\\' => 13,
         ),
         'D' => 
         array (
@@ -62,6 +66,10 @@ class ComposerStaticInit823e92ae3d3deceb390860de731975bf
         array (
             0 => __DIR__ . '/..' . '/zircote/swagger-php/src',
         ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
         'Doctrine\\Deprecations\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/deprecations/src',
@@ -83,9 +91,9 @@ class ComposerStaticInit823e92ae3d3deceb390860de731975bf
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit823e92ae3d3deceb390860de731975bf::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit823e92ae3d3deceb390860de731975bf::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit823e92ae3d3deceb390860de731975bf::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitc7630bcbf0a4606e4d6dd839839cf5b7::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitc7630bcbf0a4606e4d6dd839839cf5b7::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitc7630bcbf0a4606e4d6dd839839cf5b7::$classMap;
 
         }, null, ClassLoader::class);
     }

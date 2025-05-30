@@ -7,6 +7,7 @@ class UsersService extends BaseService {
     public function __construct() {
         $dao = new UsersDao();
         parent::__construct($dao);
+        $this->usersDao = $dao;
     }
 
     public function registerUser($data) {
@@ -31,7 +32,28 @@ class UsersService extends BaseService {
             throw new Exception('Student email must end with @stu.ba');
         }
 
+        
+        if (isset($data['subjects'])) {
+            if (is_array($data['subjects']) && count($data['subjects']) > 0) {
+                $data['subjects'] = $data['subjects'][0]; // store only the first selected subject
+            } else if (is_array($data['subjects'])) {
+                $data['subjects'] = null; // empty array fallback
+            }
+        }
+        error_log("Final subjects value: " . json_encode($data['subjects']));
+
+        // Safely map 'name' to 'username' if needed
+        if (!isset($data['username']) && isset($data['name'])) {
+            $data['username'] = $data['name'];
+            unset($data['name']);
+        }
+
         return $this->usersDao->createUser($data);
+    }
+
+    // Add a create method for direct user creation using registerUser logic
+    public function create($data) {
+        return $this->registerUser($data);
     }
 
     // service za login
@@ -91,6 +113,10 @@ class UsersService extends BaseService {
         }
 
         return $this->usersDao->getByRole($role);
+    }
+
+    public function getAllUsers() {
+        return $this->usersDao->getAll();
     }
 }
 ?>

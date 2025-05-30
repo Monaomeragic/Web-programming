@@ -26,13 +26,20 @@ class BaseService {
         }
     }
 
-    public function create($data) {
+    public function add($data) {
         try {
             return $this->dao->insert($data);
         } catch (Exception $e) {
             error_log($e->getMessage());
             throw new Exception("Error creating new entry.");
         }
+    }
+
+    /**
+     * Alias for add()
+     */
+    public function create($data) {
+        return $this->add($data);
     }
 
     public function update($id, $data) {
@@ -54,4 +61,3 @@ class BaseService {
     }
 }
 ?> 
-
