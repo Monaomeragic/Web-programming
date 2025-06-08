@@ -1,6 +1,6 @@
 window.LiveSessionService = window.LiveSessionService || {};
 // live-session-service.js follows the RestClient pattern similar to messages-service.js
-LiveSessionService.BASE_URL = LiveSessionService.BASE_URL || 'http://localhost/MonaOmeragic/Web-programming/backend/live_sessions';
+LiveSessionService.BASE_URL = Constants.PROJECT_BASE_URL + "/live_sessions";
 
 function getToken() {
   return localStorage.getItem('user_token');

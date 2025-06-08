@@ -1,8 +1,10 @@
 if (typeof window.Constants === 'undefined') {
-    window.Constants = {
-      PROJECT_BASE_URL: 'http://localhost/MonaOmeragic/Web-programming/backend'
+    PROJECT_BASE_URL:
+  window.location.hostname === "localhost"
+    ? "http://localhost/MonaOmeragic/Web-programming/backend"
+    : "https://whale-app-2-rytvu.ondigitalocean.app/backend"
     };
-  }
+  
   window.RestClient = {
       request(url, method, data, success, failure) {
         const endpoint = url.startsWith('/') ? url : `/${url}`;

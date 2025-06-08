@@ -2,8 +2,7 @@
 
 window.MessagesService = window.MessagesService || {};
 
-const BASE_URL = 'http://localhost/MonaOmeragic/Web-programming/backend/messages';
-
+const BASE_URL = Constants.PROJECT_BASE_URL + "/messages";
 function getToken() {
   return localStorage.getItem('user_token');
 }

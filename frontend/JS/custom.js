@@ -1,3 +1,4 @@
+
 // Admin: Load all bookings (admin view) as inline lines
 
 function loadAdminBookings() {
@@ -10,7 +11,7 @@ function loadAdminBookings() {
   $container.empty();
 
   $.ajax({
-    url: "http://localhost/MonaOmeragic/Web-programming/backend/appointments",
+    url: Constants.PROJECT_BASE_URL + "/appointments",
     method: "GET",
     beforeSend: function(xhr) {
       const token = localStorage.getItem("user_token");
@@ -75,7 +76,7 @@ function loadEditProfessors() {
   container.empty();
 
   $.ajax({
-    url: "http://localhost/MonaOmeragic/Web-programming/backend/users",
+    url: Constants.PROJECT_BASE_URL + "/users",
     method: "GET",
     beforeSend: function(xhr) {
       const token = localStorage.getItem("user_token");
@@ -378,7 +379,7 @@ function capitalizeFirstLetter(string) {
     if (!container.length) return;
     container.empty();
     $.ajax({
-      url: "http://localhost/MonaOmeragic/Web-programming/backend/users/staff",
+      url: Constants.PROJECT_BASE_URL + "/users/staff",
       method: "GET",
       beforeSend: function(xhr) {
         const token = localStorage.getItem("user_token");
@@ -611,7 +612,7 @@ function capitalizeFirstLetter(string) {
     const subject = localStorage.getItem("selectedSubject") || "Mathematics"; // fallback to Mathematics
 
     $.ajax({
-      url: "http://localhost/MonaOmeragic/Web-programming/backend/materials/" + id,
+      url: Constants.PROJECT_BASE_URL + "/materials/" + id,
       method: "DELETE",
       beforeSend: function(xhr) {
         const token = localStorage.getItem("user_token");
@@ -679,7 +680,7 @@ function capitalizeFirstLetter(string) {
       } else {
           // Fallback: direct AJAX if service isn't wired up
           $.ajax({
-              url: "http://localhost/MonaOmeragic/Web-programming/backend/appointments",
+              url: Constants.PROJECT_BASE_URL + "/appointments",
               method: "POST",
               contentType: "application/json",
               data: JSON.stringify(bookingData),
@@ -710,7 +711,7 @@ function capitalizeFirstLetter(string) {
       AppointmentService.list(
         function(bookings) {
           $.ajax({
-            url: "http://localhost/MonaOmeragic/Web-programming/backend/users",
+            url: Constants.PROJECT_BASE_URL + "/users",
             method: "GET",
             beforeSend: function (xhr) {
               const tk = localStorage.getItem("user_token");
@@ -907,7 +908,7 @@ function capitalizeFirstLetter(string) {
 
     $.ajax({
       url:
-        "http://localhost/MonaOmeragic/Web-programming/backend/appointments?professor_id=" +
+        Constants.PROJECT_BASE_URL + "/appointments?professor_id=" +
         professorId,
       method: "GET",
       beforeSend: function (xhr) {
@@ -977,25 +978,25 @@ function capitalizeFirstLetter(string) {
     const bookingCard = $(".booking-card").eq(index);
     const bookingId = bookingCard.find(".delete-booking").data("id");
 
-    $.ajax({
-      url: `http://localhost/MonaOmeragic/Web-programming/backend/appointments/confirm/${bookingId}`,
-      method: "PATCH",
-      beforeSend: function (xhr) {
-        const token = localStorage.getItem("user_token");
-        if (token) {
-          xhr.setRequestHeader("Authorization", "Bearer " + token);
-          xhr.setRequestHeader("Authentication", token);
-        }
-      },
-      success: function () {
-        alert("Appointment confirmed.");
-        loadBookings(getUser());
-      },
-      error: function (xhr) {
-        const msg = xhr.responseJSON?.error || xhr.responseText || xhr.statusText;
-        alert("Error confirming: " + msg);
+  $.ajax({
+    url: Constants.PROJECT_BASE_URL + `/appointments/confirm/${bookingId}`,
+    method: "PATCH",
+    beforeSend: function (xhr) {
+      const token = localStorage.getItem("user_token");
+      if (token) {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+        xhr.setRequestHeader("Authentication", token);
       }
-    });
+    },
+    success: function () {
+      alert("Appointment confirmed.");
+      loadBookings(getUser());
+    },
+    error: function (xhr) {
+      const msg = xhr.responseJSON?.error || xhr.responseText || xhr.statusText;
+      alert("Error confirming: " + msg);
+    }
+  });
   });
 
   // Expose loader functions globally so inline scripts can find them
@@ -1035,7 +1036,7 @@ $(document).off('submit', '#login-form').on('submit', '#login-form', function(e)
   }
 
   $.ajax({
-    url: 'http://localhost/MonaOmeragic/Web-programming/backend/auth/login',
+    url: Constants.PROJECT_BASE_URL + '/auth/login',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ email, password }),
@@ -1083,7 +1084,7 @@ $(document).off('submit', '#signup-form').on('submit', '#signup-form', function(
   const email    = $('#signupEmail').val();
   const password = $('#signupPassword').val();
 
-  const url = 'http://localhost/MonaOmeragic/Web-programming/backend/auth/register';
+  const url = Constants.PROJECT_BASE_URL + '/auth/register';
   console.log('Posting to:', url, { username, email, password });  // DEBUG
 
   $.ajax({
@@ -1144,7 +1145,7 @@ $(document).on("click", "#editProfessorsList .delete-user", function () {
   if (!confirm("Are you sure you want to delete this user?")) return;
 
   $.ajax({
-    url: `http://localhost/MonaOmeragic/Web-programming/backend/users/${id}`,
+    url: Constants.PROJECT_BASE_URL + `/users/${id}`,
     method: "DELETE",
     beforeSend: function (xhr) {
       const token = localStorage.getItem("user_token");
@@ -1177,7 +1178,7 @@ function loadUserManagement() {
   const usersList = $("#usersList");
   usersList.empty();
   $.ajax({
-    url: "http://localhost/MonaOmeragic/Web-programming/backend/users",
+    url: Constants.PROJECT_BASE_URL + "/users",
     method: "GET",
     beforeSend: function(xhr) {
       const token = localStorage.getItem("user_token");
@@ -1270,7 +1271,7 @@ $(document).on("click", "#addUserBtn", function () {
   console.log("🔐 Sending token:", localStorage.getItem("user_token"));
 
   $.ajax({
-    url: 'http://localhost/MonaOmeragic/Web-programming/backend/users',
+    url: Constants.PROJECT_BASE_URL + '/users',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(newUser),
@@ -1304,7 +1305,7 @@ $(document).on("click", ".delete-booking", function () {
   if (!confirm("Are you sure you want to cancel this appointment?")) return;
 
   $.ajax({
-    url: `http://localhost/MonaOmeragic/Web-programming/backend/appointments/${id}`,
+    url: Constants.PROJECT_BASE_URL + `/appointments/${id}`,
     method: "DELETE",
     beforeSend(xhr) {
       const tk = localStorage.getItem("user_token");
@@ -1358,7 +1359,7 @@ $(document).off("click", ".send-message-submit").on("click", ".send-message-subm
   const professor = getUser();
   try {
     await $.ajax({
-      url: "http://localhost/MonaOmeragic/Web-programming/backend/messages",
+      url: Constants.PROJECT_BASE_URL + "/messages",
       method: "POST",
       contentType: "application/json",
       data: JSON.stringify({
@@ -1508,32 +1509,32 @@ function displaySessions() {
 
           btn.onclick = async () => {
             try {
-              const url =
-                `http://localhost/MonaOmeragic/Web-programming/backend/live_sessions/${session.id}/attend`;
+          const url =
+            Constants.PROJECT_BASE_URL + `/live_sessions/${session.id}/attend`;
 
-              if (hasAttended) {
-                // Cancel RSVP
-                await fetch(url, {
-                  method: 'DELETE',
-                  headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Authentication': token
-                  }
-                });
-                localRSVP = localRSVP.filter(id => id !== session.id);
-              } else {
-                // RSVP (Attend)
-                await fetch(url, {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Authentication': token
-                  }
-                });
-                localRSVP.push(session.id);
+          if (hasAttended) {
+            // Cancel RSVP
+            await fetch(url, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + token,
+                'Authentication': token
               }
-              localStorage.setItem("attendedSessions", JSON.stringify(localRSVP));
-              displaySessions(); // Refresh so that attendee_count and button update
+            });
+            localRSVP = localRSVP.filter(id => id !== session.id);
+          } else {
+            // RSVP (Attend)
+            await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + token,
+                'Authentication': token
+              }
+            });
+            localRSVP.push(session.id);
+          }
+          localStorage.setItem("attendedSessions", JSON.stringify(localRSVP));
+          displaySessions(); // Refresh so that attendee_count and button update
             } catch (err) {
               alert("Error updating attendance: " + (err.message || err));
             }
@@ -1552,7 +1553,7 @@ function displaySessions() {
           delBtn.textContent = 'Delete';
           delBtn.onclick = () => {
             fetch(
-              `http://localhost/MonaOmeragic/Web-programming/backend/live_sessions/${session.id}`,
+              Constants.PROJECT_BASE_URL + `/live_sessions/${session.id}`,
               {
                 method: 'DELETE',
                 headers: {
@@ -1642,7 +1643,7 @@ async function loadMessages() {
     let userMap = {};
     try {
       const users = await $.ajax({
-        url: "http://localhost/MonaOmeragic/Web-programming/backend/users",
+        url: Constants.PROJECT_BASE_URL + "/users",
         method: "GET",
         beforeSend: function(xhr) {
           const token = localStorage.getItem("user_token");
@@ -1665,7 +1666,7 @@ async function loadMessages() {
     if (user.role && user.role.toLowerCase() === 'student') {
       // Student: load messages sent to them
       messages = await $.ajax({
-        url: "http://localhost/MonaOmeragic/Web-programming/backend/messages",
+        url: Constants.PROJECT_BASE_URL + "/messages",
         method: "GET",
         beforeSend: function(xhr) {
           const token = localStorage.getItem("user_token");
@@ -1678,7 +1679,7 @@ async function loadMessages() {
     } else if (user.role && (user.role.toLowerCase() === 'professor' || user.role.toLowerCase() === 'assistant')) {
       // Professor/Assistant: load messages they sent
       messages = await $.ajax({
-        url: "http://localhost/MonaOmeragic/Web-programming/backend/messages",
+        url: Constants.PROJECT_BASE_URL + "/messages",
         method: "GET",
         beforeSend: function(xhr) {
           const token = localStorage.getItem("user_token");
@@ -1727,7 +1728,7 @@ async function loadMessages() {
           const msgId = this.getAttribute('data-id');
           try {
             await $.ajax({
-              url: "http://localhost/MonaOmeragic/Web-programming/backend/messages/" + msgId + "/read",
+              url: Constants.PROJECT_BASE_URL + "/messages/" + msgId + "/read",
               method: "POST",
               beforeSend: function(xhr) {
                 const token = localStorage.getItem("user_token");
