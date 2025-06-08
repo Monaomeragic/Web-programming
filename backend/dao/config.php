@@ -20,7 +20,7 @@ class Config {
    }
    public static function DB_PASSWORD() {
        // Default: DigitalOcean password (replace YOUR_ACTUAL_PASSWORD)
-       return Config::get_env("DB_PASSWORD", 'AVNS_xjIzO1btVoqylEWb3pN');
+       return Config::get_env("DB_PASSWORD", '');
    }
    public static function DB_HOST() {
        // Default: DigitalOcean host
