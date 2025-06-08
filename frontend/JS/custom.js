@@ -1,4 +1,5 @@
 // Admin: Load all bookings (admin view) as inline lines
+
 function loadAdminBookings() {
   const user = getUser();
   if (!user || user.role !== "admin") {
@@ -159,7 +160,11 @@ function loadEditProfessors() {
       localStorage.setItem("materials", JSON.stringify([]));
   }
 
-  let app = $.spapp({ pageNotFound: 'error_404' });
+  let app = $.spapp({
+    defaultView: 'home',
+    pageNotFound: 'error_404.html',
+    templateDir: 'tpl/'
+  });
 
   let users = JSON.parse(localStorage.getItem("users")) || [];
   if (!users.find(u => u.email === "admin@admin.com")) {
@@ -176,6 +181,8 @@ function loadEditProfessors() {
   function logout() {
     localStorage.removeItem("user_token");
     window.location.hash = "#login";
+    // Force a reload so that the login view is rendered immediately
+    window.location.reload();
   }
 
 function updateNavigation() {
@@ -201,7 +208,7 @@ function updateNavigation() {
     } else if (user.role === "professor" || user.role === "assistant") {
       $("#manageBookingsNav, #liveSessionsNav, #messagesNav, #materialsDropdown").show();
     } else if (user.role === "student") {
-      $("#homeNav, #bookingNav, #manageBookingsNav, #messagesNav, #materialsDropdown, #liveSessionsNav").show();
+      $("#homeNav, #manageBookingsNav, #messagesNav, #materialsDropdown, #liveSessionsNav").show();
     }
   } else {
     $("#navbar").hide();
@@ -231,31 +238,120 @@ function capitalizeFirstLetter(string) {
   // Application routes
   app.route({ view: 'login', load: 'login.html', onReady: updateNavigation });
   app.route({ view: 'signup', load: 'signup.html', onReady: updateNavigation });
-  app.route({ view: 'home', load: 'home.html', onReady: function () { loadHome(); updateNavigation(); } });
-  app.route({ view: 'manage-bookings', load: 'manage-bookings.html', onReady: function () { loadManageBookings(); updateNavigation(); } });
-  app.route({ view: 'booking', load: 'booking.html', onReady: loadBooking });
-  app.route({ view: 'math-materials', load: 'math-materials.html', onReady: () => loadMaterialsPage("Mathematics") });
-  app.route({ view: 'physics-materials', load: 'physics-materials.html', onReady: () => loadMaterialsPage("Physics") });
-  app.route({ view: 'computer-science-materials', load: 'computer-science-materials.html', onReady: () => loadMaterialsPage("Computer Science") });
-  app.route({ view: 'chemistry-materials', load: 'chemistry-materials.html', onReady: () => loadMaterialsPage("Chemistry") });
+  app.route({
+    view: 'home',
+    load: 'home.html',
+    onReady: function () {
+      console.log('Home page loaded.');
+      setTimeout(() => {
+        loadHome();
+        updateNavigation();
+      }, 100);
+    }
+  });
+  app.route({
+    view: 'manage-bookings',
+    load: 'manage-bookings.html',
+    onReady: function () {
+      console.log("Manage Bookings page loaded.");
+      setTimeout(() => {
+        loadManageBookings();
+        updateNavigation();
+      }, 100);
+    }
+  });
+  app.route({
+    view: 'booking',
+    load: 'booking.html',
+    onReady: function() {
+      console.log('Booking page loaded.');
+      setTimeout(() => {
+        loadBooking();
+        updateNavigation();
+      }, 100);
+    }
+  });
+  app.route({
+    view: 'math-materials',
+    load: 'math-materials.html',
+    onReady: function() {
+      localStorage.setItem("selectedSubject", "Mathematics");
+      console.log('Mathematics Materials page loaded.');
+      setTimeout(() => {
+        loadMaterialsPage("Mathematics");
+        updateNavigation();
+      }, 100);
+    }
+  });
+  app.route({
+    view: 'physics-materials',
+    load: 'physics-materials.html',
+    onReady: function() {
+      localStorage.setItem("selectedSubject", "Physics");
+      console.log('Physics Materials page loaded.');
+      setTimeout(() => {
+        loadMaterialsPage("Physics");
+        updateNavigation();
+      }, 100);
+    }
+  });
+  app.route({
+    view: 'computer-science-materials',
+    load: 'computer-science-materials.html',
+    onReady: function() {
+      localStorage.setItem("selectedSubject", "Computer Science");
+      console.log('Computer Science Materials page loaded.');
+      setTimeout(() => {
+        loadMaterialsPage("Computer Science");
+        updateNavigation();
+      }, 100);
+    }
+  });
+  app.route({
+    view: 'chemistry-materials',
+    load: 'chemistry-materials.html',
+    onReady: function() {
+      localStorage.setItem("selectedSubject", "Chemistry");
+      console.log('Chemistry Materials page loaded.');
+      setTimeout(() => {
+        loadMaterialsPage("Chemistry");
+        updateNavigation();
+      }, 100);
+    }
+  });
   app.route({ view: 'manage-users', load: 'manage-users.html', onReady: function () { loadUserManagement(); updateNavigation(); } });
   app.route({ view: 'edit-professors', load: 'edit-professors.html', onReady: loadEditProfessors });
-  app.route({ view: 'messages', load: 'messages.html', onReady: function() { console.log('Messages page loaded.'); loadMessages(); } });
-  app.route({ view: 'live-session', load: 'live-session.html', onReady: function() {
-    console.log('Live Sessions page loaded.');
-    const user = getUser();
-    if (user && user.role === "professor") {
-      const createForm = document.getElementById("createSessionForm");
-      if (createForm) createForm.style.display = "block";
-    } else {
-      const createForm = document.getElementById("createSessionForm");
-      if (createForm) createForm.style.display = "none";
+  app.route({
+    view: 'messages',
+    load: 'messages.html',
+    onReady: function() {
+      console.log('Messages page loaded.');
+      setTimeout(() => {
+        loadMessages();
+        updateNavigation();
+      }, 200);
     }
-    setTimeout(() => {
-      console.log("Calling displaySessions after delay");
-      displaySessions();
-    }, 50);
-  }});
+  });
+  app.route({
+    view: 'live-session',
+    load: 'live-session.html',
+    onReady: function() {
+      console.log('Live Sessions page loaded.');
+      const user = getUser();
+      if (user && user.role === "professor") {
+        const createForm = document.getElementById("createSessionForm");
+        if (createForm) createForm.style.display = "block";
+      } else {
+        const createForm = document.getElementById("createSessionForm");
+        if (createForm) createForm.style.display = "none";
+      }
+      setTimeout(() => {
+        console.log("Calling displaySessions after delay");
+        displaySessions();
+        updateNavigation();
+      }, 200);
+    }
+  });
   // Admin bookings SPA route
   app.route({
     view: 'admin-bookings',
@@ -353,72 +449,97 @@ function capitalizeFirstLetter(string) {
   }
 
   function loadBooking() {
-    if (!getUser()) {
+    const user = getUser();
+    if (!user) {
       window.location.hash = "#login";
-    } else {
-      loadBookingPage();
-      setTimeout(populateTimeDropdown, 0);
-      updateNavigation();
+      return;
     }
+    const profName = localStorage.getItem("selectedProfessorName");
+    const profSubject = localStorage.getItem("selectedProfessorSubject");
+    const profId = parseInt(localStorage.getItem("selectedProfessorId"), 10);
+
+    // If no professor was selected, go back to home
+    if (!profName || !profSubject || !profId || isNaN(profId)) {
+      window.location.hash = "#home";
+      return;
+    }
+
+    // Proceed to load the booking page
+    loadBookingPage();
+    setTimeout(populateTimeDropdown, 0);
+    updateNavigation();
   }
 
   function loadMaterialsPage(subject) {
-    setTimeout(() => {
-        if (!subject || subject.trim() === "") {
-            console.error("Error: Subject is undefined or empty!");
-            alert("No subject detected. Please select a subject.");
-            return;
-        }
-        console.log("Loading materials for:", subject);
-        const user = getUser();
-        const materialsContainerId = subject.toLowerCase().replace(/\s/g, '') + 'MaterialsContainer'; // Dynamically generate ID based on subject
-        console.log("Materials container ID:", materialsContainerId); // Debugging line
-        const materialsContainer = $("#" + materialsContainerId);
+    if (!subject || !subject.trim()) {
+      alert("Please select a subject.");
+      return;
+    }
 
-        if (!materialsContainer.length) {
-            console.error("Error: #" + materialsContainerId + " not found in HTML.");
-            return;
-        }
+    const containerId = subject.toLowerCase().replace(/\s/g, '') + 'MaterialsContainer';
+    const container = document.getElementById(containerId);
+    if (!container) return;
 
-        materialsContainer.empty();
-        materialsContainer.append(`<h2>${subject} Materials</h2>`);
+    // Show a loading message
+    container.innerHTML = '<p>Loading materials…</p>';
 
-        let uploadedFiles = JSON.parse(localStorage.getItem("materials")) || [];
-        console.log("All uploaded files:", JSON.stringify(uploadedFiles)); // Debugging line
-        let subjectFiles = uploadedFiles.filter(file => file.subject === subject);
-        console.log("Filtered files for subject:", JSON.stringify(subjectFiles)); // Debugging line
-
-        if (subjectFiles.length === 0) {
-            materialsContainer.append("<p>No materials uploaded yet.</p>");
+    // Fetch materials from backend using service callbacks
+    MaterialsService.getAll(
+      subject,
+      function(response) {
+        const list = response.data || [];
+        container.innerHTML = ''; // clear loading text
+        if (
+          list
+            .filter(mat => mat.subject_name === subject)
+            .length === 0
+        ) {
+          container.innerHTML = '<p>No materials uploaded yet.</p>';
         } else {
-        subjectFiles.forEach((file, index) => {
-                let deleteButton = "";
-                if (user && user.role === "professor") {
-                    deleteButton = `<button class="delete-material btn btn-danger" data-index="${index}">Delete</button>`;
-                }
-                let fileElement = file.url.startsWith("data:image")
-                    ? `<img src="${file.url}" style="max-width: 100px;">`
-                    : `<a href="${file.url}" target="_blank">${file.name}</a>`;
-                materialsContainer.append(`
-                    <div class="material-item">
-                        ${fileElement}
-                        ${deleteButton}
-                    </div>
-                `);
+          list
+            .filter(mat => mat.subject_name === subject)
+            .forEach(mat => {
+              const user = getUser();
+              // Only professors see the delete button for their own uploads
+              const deleteBtn = (user && user.role === 'professor' && user.id === mat.professor_id)
+                ? `<button class="delete-material btn btn-danger" data-id="${mat.id}">Delete</button>`
+                : '';
+              // Show image if it's an image file, otherwise show download link
+              let fileEl;
+              if (mat.material_url && mat.material_url.startsWith('data:image')) {
+                fileEl = `<img src="${mat.material_url}" style="max-width:200px;max-height:150px;" />`;
+              } else if (mat.material_url) {
+                fileEl = `<a href="${mat.material_url}" target="_blank" download="${mat.material_title}">${mat.material_title}</a>`;
+              } else {
+                fileEl = '<span class="text-danger">No file</span>';
+              }
+              container.insertAdjacentHTML('beforeend', `
+                <div class="material-item mb-3 border p-2">
+                  <h5>${mat.material_title}</h5>
+                  ${fileEl}
+                  <p class="text-muted">By: ${mat.professor_name || mat.professor_id}</p>
+                  ${deleteBtn}
+                </div>
+              `);
             });
         }
-
-        if (user && user.role === "professor") {
-            let uploadSection = `
-                <div id="uploadSection">
-                    <input type="file" id="uploadMaterial" />
-                    <button id="uploadMaterialBtn" class="btn btn-primary">Upload Material</button>
-                </div>
-            `;
-            materialsContainer.append(uploadSection);
+        // Add upload section for professors only
+        const currentUser = getUser();
+        if (currentUser && currentUser.role === 'professor') {
+          container.insertAdjacentHTML('beforeend', `
+            <div id="uploadSection" class="mt-3">
+              <input type="text" id="uploadMaterialTitle" placeholder="Material Title" class="form-control mb-2"/>
+              <input type="file" id="uploadMaterial" />
+              <button id="uploadMaterialBtn" class="btn btn-primary">Upload Material</button>
+            </div>
+          `);
         }
-        console.log("Materials loaded for subject:", subject); // Debugging line
-    }, 100);  // Delay to ensure the element is loaded
+      },
+      function(errorMsg) {
+        console.error("Failed to load materials:", errorMsg);
+        container.innerHTML = "<p class='text-danger'>Failed to load materials.</p>";
+      }
+    );
   }
 
   $(document).on("click", "#materialsDropdown a", function (e) {
@@ -435,70 +556,79 @@ function capitalizeFirstLetter(string) {
   $(document).on("change", "#subjectFilter", function () {
     loadEditProfessors();
   });
-  // Upload material handler
-  $(document).on("click", "#uploadMaterialBtn", function () {
-    console.log("Upload button clicked"); // Debugging
-    const subject = localStorage.getItem("selectedSubject");
-    console.log("Subject from localStorage:", subject);
- 
-    if (!subject || subject.trim() === "") {
-      alert("No subject selected. Please select a subject from the dropdown.");
-      return;
-    }
- 
+  // Upload material handler using multipart/form-data
+  $(document).off("click", "#uploadMaterialBtn").on("click", "#uploadMaterialBtn", function () {
+    const title = $("#uploadMaterialTitle").val().trim();
     const fileInput = document.getElementById("uploadMaterial");
     if (!fileInput || fileInput.files.length === 0) {
       alert("Please select a file.");
-      console.error("File input not found or no file selected.");
       return;
     }
- 
-    console.log("Upload Material Button clicked");
-    console.log("File input element:", fileInput);
-    console.log("File selected:", fileInput.files[0].name);
- 
-    const selectedFile = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      let uploadedFiles = JSON.parse(localStorage.getItem("materials")) || [];
-      uploadedFiles.push({ name: selectedFile.name, subject: subject, url: e.target.result });
-      localStorage.setItem("materials", JSON.stringify(uploadedFiles));
-      console.log("Materials after upload:", JSON.stringify(uploadedFiles));
-      alert("Material uploaded successfully!");
-      loadMaterialsPage(subject);
-    };
- 
-    reader.onerror = function (error) {
-      console.error("Error reading file:", error);
-      alert("Error reading file: " + error);
-    };
- 
-    reader.readAsDataURL(selectedFile);
+    const file = fileInput.files[0];
+    const subject = localStorage.getItem("selectedSubject");
+    const user = getUser();
+
+    // Build FormData for multipart upload
+    const formData = new FormData();
+    formData.append("professor_id", user.id);
+    // formData.append("subject_name", subject); // REMOVED as per instructions
+    formData.append("material_title", title || file.name);
+    formData.append("file", file);
+
+    // Send multipart/form-data to backend
+    $.ajax({
+      url: Constants.PROJECT_BASE_URL + "/materials/" + encodeURIComponent(subject),
+      method: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+      beforeSend: function(xhr) {
+        const token = localStorage.getItem("user_token");
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token);
+          xhr.setRequestHeader("Authentication", token);
+        }
+      },
+      success: function() {
+        alert("Material uploaded successfully!");
+        loadMaterialsPage(subject);
+      },
+      error: function(xhr) {
+        const msg = xhr.responseJSON?.message || xhr.responseText || xhr.statusText;
+        alert("Upload failed: " + msg);
+      }
+    });
   });
 
-  $(document).on("click", ".delete-material", function () {
-    const user = getUser();
-    if (!user || user.role !== "professor") {
-      alert("Only professors can delete materials.");
+  $(document).off("click", ".delete-material").on("click", ".delete-material", function () {
+    const id = $(this).data("id");
+    if (!id) {
+      alert("No material ID provided!");
       return;
     }
+    if (!confirm("Are you sure you want to delete this material?")) return;
 
-    const index = $(this).data("index");
-    let uploadedFiles = JSON.parse(localStorage.getItem("materials")) || [];
-    const hashSubject = window.location.hash.split('-')[0].replace('#','');
-    const subjectFromHash = hashSubject ? (hashSubject.charAt(0).toUpperCase() + hashSubject.slice(1)) : "";
-    let subject = localStorage.getItem("selectedSubject") || subjectFromHash;
-    if (!subject) {
-      alert("No subject selected. Please select a subject from the dropdown.");
-      return;
-    }
-    
+    const subject = localStorage.getItem("selectedSubject") || "Mathematics"; // fallback to Mathematics
 
-    if (confirm("Are you sure you want to delete this material?")) {
-      uploadedFiles.splice(index, 1);
-      localStorage.setItem("materials", JSON.stringify(uploadedFiles));
-      loadMaterialsPage(subject);
-    }
+    $.ajax({
+      url: "http://localhost/MonaOmeragic/Web-programming/backend/materials/" + id,
+      method: "DELETE",
+      beforeSend: function(xhr) {
+        const token = localStorage.getItem("user_token");
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token);
+          xhr.setRequestHeader("Authentication", token);
+        }
+      },
+      success: function(res) {
+        alert("Material deleted!");
+        loadMaterialsPage(subject); // refresh the materials list
+      },
+      error: function(xhr) {
+        const msg = xhr.responseJSON?.message || xhr.responseText || xhr.statusText;
+        alert("Delete failed: " + msg);
+      }
+    });
   });
 
   $(document).on("click", "#submitBookingBtn, #confirmBooking", function () {
@@ -654,7 +784,7 @@ function capitalizeFirstLetter(string) {
                       </div>
                       ${!booking.confirmed ? `<button class="confirm-booking btn btn-success" data-index="${index}">Confirm</button>` : ''}
                       <button class="delete-booking btn btn-danger" data-id="${booking.id}">Cancel</button>
-                      <button class="btn btn-outline-primary send-message-btn " data-student="${booking.studentName}">Message</button>
+                      <button class="btn btn-outline-primary send-message-btn" data-student-id="${booking.student_id}" data-student="${booking.studentName}">Message</button>
                       <textarea class="form-control mt-2 message-input" placeholder="Write a message..." style="display: none;"></textarea>
                       <button class="btn btn-sm btn-secondary mt-1 send-message-submit" style="display: none;">Send</button>
                     </div>
@@ -868,51 +998,59 @@ function capitalizeFirstLetter(string) {
     });
   });
 
-  $(document).ready(function () {
-      let currentHash = window.location.hash;
-      const subjectMap = {
-          "math": "Mathematics",
-          "physics": "Physics",
-          "computer-science": "Computer Science",
-          "chemistry": "Chemistry"
-      };
-
-      for (let key in subjectMap) {
-          if (currentHash.includes(key)) {
-              const detectedSubject = subjectMap[key];
-              localStorage.setItem("selectedSubject", detectedSubject);
-              console.log("Automatically detected subject on page load:", detectedSubject);
-              loadMaterialsPage(detectedSubject);
-              break;
-          }
-      }
-  });
-
-  window.addEventListener("hashchange", () => {
-      const newSubject = detectSubjectFromHash();
-      if (newSubject) {
-          localStorage.setItem("selectedSubject", newSubject);
-          loadMaterialsPage(newSubject);
-      }
-  });
+  // Expose loader functions globally so inline scripts can find them
+  window.loadHome = loadHome;
+  window.loadBooking = loadBooking;
+  window.loadManageBookings = loadManageBookings;
+  window.loadAdminBookings = loadAdminBookings;
+  window.loadEditProfessors = loadEditProfessors;
+  window.loadMaterialsPage = loadMaterialsPage;
+  window.loadMessages = loadMessages;
+  // If returning user, build menu and show navbar before routing
+  if (localStorage.getItem("user_token")) {
+    UserService.generateMenu();
+    $("#navbar").show();
+  }
   app.run();
   updateNavigation();
 
+
+
 });
 
-// Login form submission (delegated)
-$(document).on('submit', '#login-form', function(e) {
+// Bulletproof login submit handler
+$(document).off('submit', '#login-form').on('submit', '#login-form', function(e) {
   e.preventDefault();
-  const email = $('#loginEmail').val();
-  const password = $('#loginPassword').val();
+  // Defensive: Always log what you read!
+  const email = $('#email').val();
+  const password = $('#password').val();
+
+  // DEBUG: Show what we actually get
+  console.log("Login attempt:", { email, password });
+
+  // Defensive: Prevent sending blank!
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
+
   $.ajax({
     url: 'http://localhost/MonaOmeragic/Web-programming/backend/auth/login',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ email, password }),
     success(result) {
-      localStorage.setItem('user_token', result.data.token);
-      const user = JSON.parse(atob(result.data.token.split('.')[1])).user;
+      // Defensive: Always log the backend result
+      console.log("Login success:", result);
+      // Store token, decode user, and route
+      localStorage.setItem('user_token', result.token || result.data?.token);
+      const token = result.token || result.data?.token;
+      const user = token ? JSON.parse(atob(token.split('.')[1])).user : null;
+
+      if (!user) {
+        alert("Login failed: Invalid token.");
+        return;
+      }
 
       if (user.role === 'admin') {
         window.location.hash = '#manage-users';
@@ -1205,160 +1343,258 @@ $(document).on("click", ".send-message-btn", function () {
   $card.find(".message-input, .send-message-submit").show();
 });
 
-$(document).on("click", ".send-message-submit", function () {
+$(document).off("click", ".send-message-submit").on("click", ".send-message-submit", async function () {
   const $card = $(this).closest(".booking-card");
   const message = $card.find(".message-input").val();
-  const to = $card.find(".send-message-btn").data("student");
-
+  const studentId = $card.find(".send-message-btn").data("student-id");
   if (!message.trim()) {
     alert("Please write a message.");
     return;
   }
-
+  if (!studentId) {
+    alert("Student ID not found!");
+    return;
+  }
   const professor = getUser();
-  const messages = JSON.parse(localStorage.getItem("messages")) || [];
-  messages.push({
-    from: professor.email,
-    to: to,
-    message: message,
-    timestamp: new Date().toISOString()
-  });
-  localStorage.setItem("messages", JSON.stringify(messages));
-
-  alert("Message sent successfully.");
-  $card.find(".message-input").val("").hide();
-  $card.find(".send-message-submit").hide();
+  try {
+    await $.ajax({
+      url: "http://localhost/MonaOmeragic/Web-programming/backend/messages",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({
+        from_user_id: professor.id,
+        to_user_id: studentId,
+        content: message,
+      }),
+      beforeSend: function(xhr) {
+        const token = localStorage.getItem("user_token");
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token);
+          xhr.setRequestHeader("Authentication", token);
+        }
+      }
+    });
+    alert("Message sent successfully.");
+    $card.find(".message-input").val("").hide();
+    $card.find(".send-message-submit").hide();
+  } catch (err) {
+    alert("Error sending message: " + (err.responseText || err.statusText || err.message));
+  }
 });
 
 
 function createSession() {
-  const title = document.getElementById('sessionTitle').value;
-  const time = document.getElementById('sessionTime').value;
-  const location = document.getElementById('sessionLocation').value;
-  const capacity = document.getElementById('sessionCapacity').value;
-  const user = getUser(); // Retrieve the logged-in user
+  // Attempt to get each form input by its expected ID
+  const titleInput       = document.getElementById('sessionTitle');
+  const descriptionInput = document.getElementById('sessionDescription');
+  const timeInput        = document.getElementById('sessionTime');
+  const capacityInput    = document.getElementById('sessionMax');
+  const user             = getUser();
 
+  // If any input is missing, log an error and abort
+  if (!titleInput || !descriptionInput || !timeInput || !capacityInput) {
+    console.error('One or more createSession form fields not found:', {
+      sessionTitle: titleInput,
+      sessionDescription: descriptionInput,
+      sessionTime: timeInput,
+      sessionMax: capacityInput
+    });
+    alert('Form fields are not correctly set up. Please check the Live Session form.');
+    return;
+  }
+
+  // Read values
+  const title       = titleInput.value.trim();
+  const description = descriptionInput.value.trim();
+  const time        = timeInput.value;
+  const capacity    = parseInt(capacityInput.value, 10);
+
+  // Validate presence
+  if (!title || !description || !time || isNaN(capacity)) {
+    alert('Please fill in all session fields.');
+    return;
+  }
+
+  // Build session data
   const sessionData = {
-      id: Date.now(),  // Unique ID for the session
-      title,
-      time,
-      location,
-      capacity,
-      attendees: 0,
-      professor: user ? user.email : "unknown"
+    professor_id:   user ? user.id : null,
+    title:          title,
+    description:    description,
+    scheduled_time: time,
+    max_students:   capacity
   };
 
-  let sessions = JSON.parse(localStorage.getItem('liveSessions')) || [];
-  sessions.push(sessionData);
-  localStorage.setItem('liveSessions', JSON.stringify(sessions));
-  displaySessions();  // Update the list after adding a new session
+  // Call backend to create session
+  LiveSessionService.create(
+    sessionData,
+    res => {
+      alert(res.message || 'Session created.');
+      // Reload the sessions list
+      displaySessions();
+    },
+    err => {
+      console.error('Error creating session:', err);
+      alert(err || 'Failed to create session.');
+    }
+  );
 }
 
 function displaySessions() {
-  const sessions = JSON.parse(localStorage.getItem('liveSessions')) || [];
-  const sessionsList = document.getElementById('sessionsList');
-  if (!sessionsList) return; // Prevent error if element doesn't exist
-  sessionsList.innerHTML = '';  // Clear existing content
+  const sessionsContainer = document.getElementById('sessionsContainer');
+  if (!sessionsContainer) return;
 
-  const user = getUser();
-  const isProfessor = user && user.role === 'professor';
-  const isStudent = user && user.role === 'student';
+  // Show a loading message while fetching
+  sessionsContainer.innerHTML = '<p>Loading sessions…</p>';
 
-  const heading = document.createElement('h3');
-  heading.textContent = isProfessor ? "📅 Upcoming My Sessions" : "📅 Upcoming Live Sessions";
-  heading.classList.add('mb-3');
-  sessionsList.appendChild(heading);
+  LiveSessionService.list(
+    sessions => {
+      sessionsContainer.innerHTML = ''; // clear previous contents
 
-  sessions.forEach(session => {
-    if (isProfessor && session.professor !== user.email) return; // Skip sessions not created by this professor
-    const sessionElement = document.createElement('div');
-    sessionElement.className = 'card p-3 mb-3 shadow-sm';
+      const user = getUser();
+      const isProfessor = user && user.role === 'professor';
+      const isStudent   = user && user.role === 'student';
 
-    sessionElement.innerHTML = `
-      <h5 class="card-title">${session.title}</h5>
-      <p class="mb-1"><strong>Time:</strong> ${session.time}</p>
-      <p class="mb-1"><strong>Location:</strong> ${session.location}</p>
-      <p class="mb-1"><strong>Professor:</strong> ${session.professor}</p>
-      <p class="mb-2"><strong>Spots left:</strong> ${session.capacity - session.attendees}</p>
-    `;
+      // Heading text differs for professor vs. student
+      const heading = document.createElement('h3');
+      heading.classList.add('mb-3');
+      heading.textContent = isProfessor
+        ? "Upcoming My Sessions"
+        : "Upcoming Live Sessions";
+      sessionsContainer.appendChild(heading);
 
-    const btnContainer = document.createElement('div');
-    btnContainer.classList.add('d-flex', 'gap-2');
+      if (!Array.isArray(sessions) || sessions.length === 0) {
+        const noSess = document.createElement('p');
+        noSess.textContent = 'No upcoming sessions.';
+        sessionsContainer.appendChild(noSess);
+        return;
+      }
 
-    if (isStudent && session.attendees < session.capacity) {
-      const joinBtn = document.createElement('button');
-      joinBtn.className = 'btn btn-outline-success';
-      joinBtn.textContent = "I'm Coming";
-      joinBtn.onclick = () => rsvpSession(session.id);
-      btnContainer.appendChild(joinBtn);
-    }
+      sessions.forEach(session => {
+        // Professors only see their own sessions
+        if (isProfessor && session.professor_id !== user.id) return;
 
-    if (isProfessor) {
-      const editBtn = document.createElement('button');
-      editBtn.className = 'btn btn-outline-primary';
-      editBtn.textContent = 'Edit';
-      editBtn.onclick = () => {
-        const cardBody = sessionElement;
-        cardBody.innerHTML = `
-          <div class="row g-2">
-            <div class="col-md-3">
-              <input class="form-control" type="text" value="${session.title}" id="editTitle-${session.id}" placeholder="Title">
-            </div>
-            <div class="col-md-3">
-              <input class="form-control" type="datetime-local" value="${session.time}" id="editTime-${session.id}">
-            </div>
-            <div class="col-md-3">
-              <input class="form-control" type="text" value="${session.location}" id="editLocation-${session.id}" placeholder="Location">
-            </div>
-            <div class="col-md-2">
-              <input class="form-control" type="number" value="${session.capacity}" id="editCapacity-${session.id}" placeholder="Capacity">
-            </div>
-            <div class="col-md-1 d-grid gap-2">
-              <button class="btn btn-success" id="saveEdit-${session.id}">💾</button>
-              <button class="btn btn-secondary" id="cancelEdit-${session.id}">✖</button>
-            </div>
-          </div>
+        const card = document.createElement('div');
+        card.className = 'card p-3 mb-3 shadow-sm';
+
+        // Format date/time
+        const dt   = new Date(session.scheduled_time);
+        const time = dt.toLocaleString();
+
+        // Compute remaining seats = max_students minus how many have already RSVP’d
+        const attending    = session.attendee_count || 0;
+        const remaining = session.max_students - attending;
+
+        // Build inner HTML, including professor_name
+        card.innerHTML = `
+          <h5 class="card-title">${session.title}</h5>
+          <p class="mb-1"><strong>Time:</strong> ${time}</p>
+          <p class="mb-1"><strong>Description:</strong> ${session.description}</p>
+          <p class="mb-1"><strong>Professor:</strong> ${session.professor_name || session.professor_id}</p>
+          <p class="mb-2 max-students"><strong>Remaining Seats:</strong> ${remaining}</p>
         `;
 
-        document.getElementById(`saveEdit-${session.id}`).onclick = () => {
-          const newTitle = document.getElementById(`editTitle-${session.id}`).value;
-          const newTime = document.getElementById(`editTime-${session.id}`).value;
-          const newLocation = document.getElementById(`editLocation-${session.id}`).value;
-          const newCapacity = parseInt(document.getElementById(`editCapacity-${session.id}`).value, 10);
+        // ─── Student “Attend / Cancel” button ────────────────────────────────────
+        if (isStudent) {
+          const token = localStorage.getItem('user_token');
+          // Track in localStorage which sessions this student has clicked
+          let localRSVP = JSON.parse(localStorage.getItem("attendedSessions") || "[]");
+          const hasAttended = localRSVP.includes(session.id);
 
-          if (newTitle && newTime && newLocation && !isNaN(newCapacity)) {
-            session.title = newTitle;
-            session.time = newTime;
-            session.location = newLocation;
-            session.capacity = newCapacity;
-            localStorage.setItem('liveSessions', JSON.stringify(sessions));
-            displaySessions();  // Re-render sessions
-          } else {
-            alert("Invalid input. Please fill all fields correctly.");
-          }
-        };
+          const btn = document.createElement('button');
+          btn.className = 'btn btn-primary';
+          btn.textContent = hasAttended ? 'Cancel' : 'Attend';
+          // If not yet attended, disable when no seats remain
+          btn.disabled = (!hasAttended && remaining < 1);
 
-        document.getElementById(`cancelEdit-${session.id}`).onclick = () => {
-          displaySessions();  // Re-render to revert changes
-        };
-      };
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'btn btn-outline-danger';
-      deleteBtn.textContent = 'Delete';
-      deleteBtn.onclick = () => {
-        let allSessions = JSON.parse(localStorage.getItem('liveSessions')) || [];
-        allSessions = allSessions.filter(s => s.id !== session.id);
-        localStorage.setItem('liveSessions', JSON.stringify(allSessions));
-        displaySessions();
-      };
-      btnContainer.appendChild(editBtn);
-      btnContainer.appendChild(deleteBtn);
+          btn.onclick = async () => {
+            try {
+              const url =
+                `http://localhost/MonaOmeragic/Web-programming/backend/live_sessions/${session.id}/attend`;
+
+              if (hasAttended) {
+                // Cancel RSVP
+                await fetch(url, {
+                  method: 'DELETE',
+                  headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Authentication': token
+                  }
+                });
+                localRSVP = localRSVP.filter(id => id !== session.id);
+              } else {
+                // RSVP (Attend)
+                await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Authentication': token
+                  }
+                });
+                localRSVP.push(session.id);
+              }
+              localStorage.setItem("attendedSessions", JSON.stringify(localRSVP));
+              displaySessions(); // Refresh so that attendee_count and button update
+            } catch (err) {
+              alert("Error updating attendance: " + (err.message || err));
+            }
+          };
+
+          const btnWrap = document.createElement('div');
+          btnWrap.classList.add('mt-2');
+          btnWrap.appendChild(btn);
+          card.appendChild(btnWrap);
+        }
+
+        // ─── Professor “Delete” button ───────────────────────────────────────────
+        if (isProfessor) {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'btn btn-outline-danger';
+          delBtn.textContent = 'Delete';
+          delBtn.onclick = () => {
+            fetch(
+              `http://localhost/MonaOmeragic/Web-programming/backend/live_sessions/${session.id}`,
+              {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': 'Bearer ' + localStorage.getItem('user_token'),
+                  'Authentication': localStorage.getItem('user_token')
+                }
+              }
+            ).then(res => {
+              if (res.ok) {
+                displaySessions();
+              } else {
+                alert('Failed to delete session.');
+              }
+            });
+          };
+          const delWrap = document.createElement('div');
+          delWrap.classList.add('mt-2');
+          delWrap.appendChild(delBtn);
+          card.appendChild(delWrap);
+        }
+
+        sessionsContainer.appendChild(card);
+      });
+    },
+    err => {
+      sessionsContainer.innerHTML = '<p class="text-danger">Failed to load sessions.</p>';
     }
-
-    sessionElement.appendChild(btnContainer);
-    sessionsList.appendChild(sessionElement);
-  });
+  );
 }
+// Add session form handler and initial session display
+document.addEventListener('DOMContentLoaded', () => {
+  const sessionForm = document.getElementById('sessionForm');
+  if (sessionForm) {
+    sessionForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      createSession();
+    });
+  }
+  if (document.getElementById('sessionsContainer')) {
+    displaySessions();
+  }
+});
 
 function rsvpSession(sessionId) {
   let sessions = JSON.parse(localStorage.getItem('liveSessions'));
@@ -1373,50 +1609,145 @@ function rsvpSession(sessionId) {
 }
 
 // Show stored live sessions
-function loadMessages() {
-    const user = getUser();
-    if (!user || user.role !== 'student') return;
-    
-    const container = document.getElementById('studentMessages');
-    if (!container) return;
-    
-    const messages = JSON.parse(localStorage.getItem('messages')) || [];
-    const userMessages = messages.filter(m => m.to === user.name || m.to === user.email);
-    
-    container.innerHTML = '';
-    
-    if (userMessages.length === 0) {
-        container.innerHTML = '<p>No messages yet.</p>';
-        return;
+async function loadMessages() {
+  const user = getUser();
+  if (!user) return;
+  console.log("loadMessages - user:", user);
+
+  // Show/hide sections based on role
+  const studentSection = document.getElementById('studentMessagesSection');
+  const professorSection = document.getElementById('professorMessagesSection');
+  if (user.role && user.role.toLowerCase() === 'student') {
+    if (studentSection) studentSection.style.display = 'block';
+    if (professorSection) professorSection.style.display = 'none';
+  } else if (user.role && (user.role.toLowerCase() === 'professor' || user.role.toLowerCase() === 'assistant')) {
+    if (studentSection) studentSection.style.display = 'none';
+    if (professorSection) professorSection.style.display = 'block';
+  } else {
+    if (studentSection) studentSection.style.display = 'none';
+    if (professorSection) professorSection.style.display = 'none';
+  }
+
+  const containerId = (user.role && user.role.toLowerCase() === 'student')
+    ? 'studentMessages'
+    : 'professorMessages';
+  const container = document.getElementById(containerId);
+  console.log("loadMessages - containerId:", containerId, "container exists:", !!container);
+  if (!container) return;
+
+  container.innerHTML = '<p>Loading messages...</p>';
+
+  try {
+    // Step 1: Fetch all users and build a map of user IDs to emails
+    let userMap = {};
+    try {
+      const users = await $.ajax({
+        url: "http://localhost/MonaOmeragic/Web-programming/backend/users",
+        method: "GET",
+        beforeSend: function(xhr) {
+          const token = localStorage.getItem("user_token");
+          if (token) {
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+            xhr.setRequestHeader("Authentication", token);
+          }
+        }
+      });
+      (users || []).forEach(u => {
+        userMap[u.id] = u.email;
+      });
+    } catch (userErr) {
+      // If user fetch fails, fallback to empty map
+      userMap = {};
     }
-    
-    userMessages.forEach((msg, index) => {
-        const messageCard = document.createElement('div');
-        messageCard.className = 'message-card border p-3 mb-3 rounded bg-light';
+
+    let messages = [];
+
+    if (user.role && user.role.toLowerCase() === 'student') {
+      // Student: load messages sent to them
+      messages = await $.ajax({
+        url: "http://localhost/MonaOmeragic/Web-programming/backend/messages",
+        method: "GET",
+        beforeSend: function(xhr) {
+          const token = localStorage.getItem("user_token");
+          if (token) {
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+            xhr.setRequestHeader("Authentication", token);
+          }
+        }
+      });
+    } else if (user.role && (user.role.toLowerCase() === 'professor' || user.role.toLowerCase() === 'assistant')) {
+      // Professor/Assistant: load messages they sent
+      messages = await $.ajax({
+        url: "http://localhost/MonaOmeragic/Web-programming/backend/messages",
+        method: "GET",
+        beforeSend: function(xhr) {
+          const token = localStorage.getItem("user_token");
+          if (token) {
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+            xhr.setRequestHeader("Authentication", token);
+          }
+        }
+      });
+    } else {
+      container.innerHTML = '<p>No messages available.</p>';
+      return;
+    }
+    console.log("loadMessages - fetched messages:", messages);
+
+    container.innerHTML = '';
+    if (!messages || messages.length === 0) {
+      container.innerHTML = '<p>No messages yet.</p>';
+      return;
+    }
+
+    messages.forEach(msg => {
+      const messageCard = document.createElement('div');
+      messageCard.className = 'message-card border p-3 mb-3 rounded bg-light';
+      // For student, "From" is professor; for professor, "To" is student (show email)
+      if (user.role && user.role.toLowerCase() === 'student') {
         messageCard.innerHTML = `
-            <p><strong>From:</strong> ${msg.from}</p>
-            <p><strong>Message:</strong> ${msg.message}</p>
-            <p class="text-muted"><small>${new Date(msg.timestamp).toLocaleString()}</small></p>
-            <button class="mark-read btn btn-success btn-sm">Mark as Read</button>
+          <p><strong>From:</strong> ${userMap[msg.from_user_id] || msg.from_user_id}</p>
+          <p><strong>Message:</strong> ${msg.content}</p>
+          <p class="text-muted"><small>${new Date(msg.created_at).toLocaleString()}</small></p>
+          <button class="mark-read btn btn-success btn-sm" data-id="${msg.id}">Mark as Read</button>
         `;
-        container.appendChild(messageCard);
-        
-        // Add event listener for the "Mark as Read" button
-        messageCard.querySelector('.mark-read').onclick = () => {
-            const messageIndex = messages.findIndex(m => m.timestamp === msg.timestamp && m.from === msg.from && m.to === msg.to);
-            if (messageIndex !== -1) {
-                messages.splice(messageIndex, 1); // Delete the message
-                localStorage.setItem('messages', JSON.stringify(messages)); // Save updated messages
-            }
-            messageCard.style.display = 'none'; // Remove message from view immediately
-        };
+      } else {
+        messageCard.innerHTML = `
+          <p><strong>To Student:</strong> ${userMap[msg.to_user_id] || msg.to_user_id}</p>
+          <p><strong>Message:</strong> ${msg.content}</p>
+          <p class="text-muted"><small>${new Date(msg.created_at).toLocaleString()}</small></p>
+        `;
+      }
+      container.appendChild(messageCard);
     });
+
+    if (user.role && user.role.toLowerCase() === 'student') {
+      container.querySelectorAll('.mark-read').forEach(btn => {
+        btn.onclick = async function () {
+          const msgId = this.getAttribute('data-id');
+          try {
+            await $.ajax({
+              url: "http://localhost/MonaOmeragic/Web-programming/backend/messages/" + msgId + "/read",
+              method: "POST",
+              beforeSend: function(xhr) {
+                const token = localStorage.getItem("user_token");
+                if (token) {
+                  xhr.setRequestHeader("Authorization", "Bearer " + token);
+                  xhr.setRequestHeader("Authentication", token);
+                }
+              }
+            });
+            this.parentElement.style.display = 'none';
+          } catch (err) {
+            alert("Failed to mark as read: " + err.message);
+          }
+        }
+      });
+    }
+  } catch (err) {
+    container.innerHTML = '<p class="text-danger">Failed to load messages.</p>';
+  }
 }
 
-// Load messages when navigating to the messages page
-window.addEventListener("hashchange", () => {
-  if (window.location.hash === "#messages") {
-    loadMessages();
-  }
-});
+
 

@@ -24,10 +24,20 @@ class AuthMiddleware {
     }
 
     public function authorize() {
-        $token = $_SERVER['HTTP_AUTHORIZATION']
-            ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
-            ?? $_SERVER['HTTP_AUTHENTICATION']
-            ?? null;
+        $rawHeaders = function_exists('getallheaders') ? getallheaders() : [];
+        $headers = array_change_key_case($rawHeaders, CASE_LOWER);
+        // Capture Authorization header from various server vars
+        if (empty($headers['authorization']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            $headers['authorization'] = $_SERVER['HTTP_AUTHORIZATION'];
+        } elseif (empty($headers['authorization']) && !empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            $headers['authorization'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+        $token = $headers['authorization'] ?? null;
+
+        // Fallback: allow token via ?token= in query string
+        if (empty($token) && isset($_GET['token'])) {
+            $token = $_GET['token'];
+        }
 
         if (!$token) {
             Flight::halt(401, 'Missing authentication header');

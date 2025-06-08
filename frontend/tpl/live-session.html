@@ -11,10 +11,10 @@
             <input type="datetime-local" id="sessionTime" class="form-control" required>
           </div>
           <div class="col-md-3">
-            <input type="text" id="sessionLocation" class="form-control" placeholder="Location" required>
+            <input type="text" id="sessionDescription" class="form-control" placeholder="Description" required>
           </div>
           <div class="col-md-2">
-            <input type="number" id="sessionCapacity" class="form-control" placeholder="Capacity" required>
+            <input type="number" id="sessionMax" class="form-control" placeholder="Max Students" required>
           </div>
           <div class="col-md-1 d-grid">
             <button onclick="createSession()" class="btn btn-primary">Create</button>
@@ -25,7 +25,24 @@
   
     <!-- For Everyone to View Sessions -->
     <div id="sessionsList">
-      <h3 class="mb-3">📅 Upcoming Live Sessions</h3>
-      <!-- Sessions will be populated here by JavaScript -->
+  
+      <div id="sessionsContainer">
+        <!-- Session items will be inserted here by JavaScript -->
+      </div>
+    </div>
+    <!-- For Professors to View Attendees -->
+    <div id="attendeesList" class="collapse">
+      <h3 class="mb-3">👥 Attendees</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody id="attendeesTableBody">
+          <!-- Attendee rows will be populated here by JavaScript -->
+        </tbody>
+      </table>
     </div>
   </div>

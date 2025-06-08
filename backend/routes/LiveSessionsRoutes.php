@@ -13,7 +13,6 @@ require_once __DIR__ . '/../data/roles.php';
  * )
  */
 Flight::route('GET /live_sessions', function() {
-    Flight::auth_middleware()->authorizeRole(Roles::STUDENT);
     $sessions = Flight::liveSessionsService()->get_all();
     Flight::json($sessions);
 });
@@ -34,7 +33,6 @@ Flight::route('GET /live_sessions', function() {
  * )
  */
 Flight::route('GET /live_sessions/@id', function($id) {
-    Flight::auth_middleware()->authorizeRole(Roles::STUDENT);
     $session = Flight::liveSessionsService()->get_by_id($id);
     Flight::json($session);
 });
@@ -112,4 +110,25 @@ Flight::route('POST /live_sessions/@id/attend', function($id) {
     $user = Flight::get('user');
     $result = Flight::liveSessionsService()->attendSession($id, $user->id);
     Flight::json($result);
+});
+
+// Students cancel RSVP to a live session
+Flight::route('DELETE /live_sessions/@id/attend', function($id) {
+    Flight::auth_middleware()->authorizeRole(Roles::STUDENT);
+    $user = Flight::get('user');
+    $result = Flight::liveSessionsService()->cancelAttend($id, $user->id);
+    Flight::json($result);
+});
+
+// Professors view list of attendees for a session
+Flight::route('GET /live_sessions/@id/attendees', function($id) {
+    Flight::auth_middleware()->authorizeRole(Roles::PROFESSOR);
+    $user = Flight::get('user');
+    // Ensure only the owning professor can view
+    $session = Flight::liveSessionsService()->get_by_id($id);
+    if ($session['professor_id'] != $user->id) {
+        Flight::halt(403, json_encode(['error' => 'Forbidden']));
+    }
+    $attendees = Flight::liveSessionsService()->getAttendeeList($id);
+    Flight::json($attendees);
 });

@@ -1,6 +1,6 @@
 <?php
 require_once 'BaseDao.php';
-require_once 'MessagesDao.php';  //zbog messages koje su poseban dio al se nalaze kod appointmenta za profesore
+require_once __DIR__ . '/MessagesDao.php';  //zbog messages koje su poseban dio al se nalaze kod appointmenta za profesore
 
 class AppointmentsDao extends BaseDao {
     public function __construct() {

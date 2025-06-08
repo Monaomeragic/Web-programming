@@ -38,5 +38,14 @@ class MessagesService extends BaseService {
         }
         return $this->dao->getUnreadMessagesForUser($user_id);
     }
+    /**
+     * Return all messages sent by a given user.
+     */
+    public function getBySenderId($sender_id) {
+        if (empty($sender_id)) {
+            throw new Exception('Sender ID is required.');
+        }
+        return $this->dao->getBySenderId($sender_id);
+    }
 }
 ?>

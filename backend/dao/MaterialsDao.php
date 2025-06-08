@@ -15,10 +15,35 @@ class MaterialsDao extends BaseDao {
         return $stmt->fetchAll();
     }
 
+    /**
+     * Inserts a new material record.
+     * @param array $materialData Associative array with keys:
+     *   - professor_id
+     *   - subject_name
+     *   - material_title
+     *   - material_url
+     */
     public function createMaterial($materialData) {
-        $sql = "INSERT INTO materials (professor_id, subject_n, material_t, material_l) VALUES (:professor_id, :subject_n, :material_t, :material_l)";
+        $sql = "
+            INSERT INTO materials (
+                professor_id,
+                subject_name,
+                material_title,
+                material_url
+            ) VALUES (
+                :professor_id,
+                :subject_name,
+                :material_title,
+                :material_url
+            )
+        ";
         $stmt = $this->connection->prepare($sql);
-        return $stmt->execute($materialData);
+        return $stmt->execute([
+            'professor_id'   => $materialData['professor_id'],
+            'subject_name'   => $materialData['subject_name'],
+            'material_title' => $materialData['material_title'],
+            'material_url'   => $materialData['material_url']
+        ]);
     }
 
     // Updejtuje materijal

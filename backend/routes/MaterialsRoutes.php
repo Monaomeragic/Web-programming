@@ -19,7 +19,8 @@ Flight::route('GET /materials', function() {
         Roles::ASSISTANT,
         Roles::STUDENT
     ]);
-    Flight::json(Flight::materialsService()->getAll());
+    // Service handles JSON response itself
+    Flight::materialsService()->getAll();
 });
 
 /**
@@ -48,24 +49,46 @@ Flight::route('GET /materials/@id', function($id) {
 
 /**
  * @OA\Post(
- *     path="/materials",
+ *     path="/materials/{subject}",
  *     summary="Create a new material",
  *     tags={"Materials"},
  *     security={{"ApiKey":{}}},
+ *     @OA\Parameter(
+ *         name="subject",
+ *         in="path",
+ *         required=true,
+ *         @OA\Schema(type="string")
+ *     ),
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent()
+ *         @OA\MediaType(
+ *             mediaType="multipart/form-data",
+ *             @OA\Schema(
+ *                 @OA\Property(
+ *                     property="file",
+ *                     type="string",
+ *                     format="binary",
+ *                     description="The material file to upload"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="material_title",
+ *                     type="string",
+ *                     description="Title of the material"
+ *                 )
+ *             )
+ *         )
  *     ),
- *     @OA\Response(response="200", description="Material created")
+ *     @OA\Response(response="201", description="Material created"),
+ *     @OA\Response(response="400", description="Bad request"),
+ *     @OA\Response(response="500", description="Server error")
  * )
  */
-Flight::route('POST /materials', function() {
+Flight::route('POST /materials/@subject', function($subject) {
     Flight::auth_middleware()->authorizeRoles([
         Roles::PROFESSOR,
         Roles::ASSISTANT
     ]);
-    $data = Flight::request()->data->getData();
-    Flight::json(Flight::materialsService()->create($data));
+    Flight::materialsService()->create($subject);
 });
 
 /**

@@ -87,7 +87,7 @@ Flight::group('/auth', function() {
                'data' => $response['data']
            ]);
        } else {
-           Flight::halt(500, $response['error']);
+           Flight::halt(401, $response['error']);
        }
    });
 });

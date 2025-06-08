@@ -18,6 +18,10 @@ class BaseDao {
     return $stmt->fetchAll();
 }
 
+public function getConnection() {
+    return $this->connection;
+}
+
 
 public function getById($id) {
     $stmt = $this->connection->prepare("SELECT * FROM `" . $this->table_name . "` WHERE `id` = :id");

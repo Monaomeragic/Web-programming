@@ -12,9 +12,20 @@ require_once __DIR__ . '/../data/roles.php';
  * )
  */
 Flight::route('GET /messages', function() {
-    Flight::auth_middleware()->authorizeRole(Roles::STUDENT);
+    // Allow students, professors, and assistants
+    Flight::auth_middleware()->authorizeRoles([
+        Roles::STUDENT,
+        Roles::PROFESSOR,
+        Roles::ASSISTANT
+    ]);
     $user = Flight::get('user');
-    $msgs = Flight::messagesService()->getByReceiverId($user->id);
+    if ($user->role === Roles::STUDENT) {
+        // Student: fetch inbox (messages they received)
+        $msgs = Flight::messagesService()->getUnreadMessagesForUser($user->id);
+    } else {
+        // Professor/Assistant: fetch sent messages
+        $msgs = Flight::messagesService()->getBySenderId($user->id);
+    }
     Flight::json($msgs);
 });
 
@@ -37,7 +48,7 @@ Flight::route('GET /messages/@id', function($id) {
     Flight::auth_middleware()->authorizeRole(Roles::STUDENT);
     $user = Flight::get('user');
     $msg = Flight::messagesService()->getById($id);
-    if (!$msg || $msg['receiver_id'] != $user->id) {
+    if (!$msg || $msg['to_user_id'] != $user->id) {
         Flight::halt(403, "Access denied");
     }
     Flight::json($msg);
@@ -62,7 +73,14 @@ Flight::route('POST /messages', function() {
         Roles::ASSISTANT
     ]);
     $data = Flight::request()->data->getData();
-    // Expecting sender_id, receiver_id, content
+
+    // Validate required fields
+    if (!isset($data['from_user_id']) || !isset($data['to_user_id']) || !isset($data['content'])) {
+        Flight::halt(400, json_encode([
+            "error" => "from_user_id, to_user_id, and content are required"
+        ]));
+    }
+
     $message = Flight::messagesService()->create($data);
     Flight::json($message);
 });
@@ -87,7 +105,7 @@ Flight::route('POST /messages/@id/read', function($id) {
     $user = Flight::get('user');
     // Only allow marking own messages
     $msg = Flight::messagesService()->getById($id);
-    if (!$msg || $msg['receiver_id'] != $user->id) {
+    if (!$msg || $msg['to_user_id'] != $user->id) {
         Flight::halt(403, "Access denied");
     }
     // Delete the message once read
@@ -114,7 +132,7 @@ Flight::route('DELETE /messages/@id', function($id) {
     Flight::auth_middleware()->authorizeRole(Roles::STUDENT);
     $user = Flight::get('user');
     $msg = Flight::messagesService()->getById($id);
-    if (!$msg || $msg['receiver_id'] != $user->id) {
+    if (!$msg || $msg['to_user_id'] != $user->id) {
         Flight::halt(403, "Access denied");
     }
     $deleted = Flight::messagesService()->delete($id);

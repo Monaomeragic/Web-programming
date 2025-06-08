@@ -135,9 +135,9 @@ Flight::route('PUT /appointments/@id', function($id) {
     $sentMessage = null;
     if ($message) {
         $sentMessage = Flight::messagesService()->create([
-            'sender_id'   => Flight::get('user')->id,
-            'receiver_id' => $studentId,
-            'content'     => $message
+            'from_user_id' => Flight::get('user')->id, // sender (professor)
+            'to_user_id'   => $studentId,              // recipient (student)
+            'content'      => $message
         ]);
     }
 

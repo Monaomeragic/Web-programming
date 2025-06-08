@@ -43,4 +43,18 @@ class MessagesDao extends BaseDao {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * Return all messages where from_user_id = :sender_id, ordered by created_at descending.
+     */
+    public function getBySenderId($sender_id) {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM `messages`
+            WHERE `from_user_id` = :sender_id
+            ORDER BY `created_at` DESC
+        ");
+        $stmt->bindParam(':sender_id', $sender_id);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

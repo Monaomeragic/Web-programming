@@ -64,5 +64,29 @@ class LiveSessionsService extends BaseService {
 
         return $this->dao->rsvpSession($session_id, $student_id);
     }
+    // Alias for getUpcomingSessions used by routes
+    public function get_all() {
+        return $this->getUpcomingSessions();
+    }
+
+    // Alias for fetching a single session by ID
+    public function get_by_id($id) {
+        return $this->dao->getById($id);
+    }
+
+    // Alias for creating a session used by routes
+    public function create($data) {
+        return $this->createLiveSession($data);
+    }
+
+    // Alias for updating a session used by routes
+    public function update($id, $data) {
+        return $this->updateLiveSession($id, $data);
+    }
+
+    // Alias for deleting a session used by routes
+    public function delete($id) {
+        return $this->deleteLiveSession($id);
+    }
 }
 ?>
