@@ -37,11 +37,3 @@ class Config {
         return isset($_ENV[$name]) && trim($_ENV[$name]) != "" ? $_ENV[$name] : $default;
     }
 }
-
-/**
- * How to use:
- * - When working locally, leave $USE_LOCAL = true;
- * - When deploying to DigitalOcean, set $USE_LOCAL = false; and set real DB credentials via environment variables (never hard-code passwords).
- *
- * This makes switching between local and production easy and safe.
- */
