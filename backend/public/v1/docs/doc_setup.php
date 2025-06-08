@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 
 /**
  * @OA\Info(
- *     title="API",
+ *     title="Appointment System API",
  *     description="API for Appointment system",
  *     version="1.0.0",
  *     @OA\Contact(
@@ -12,19 +12,20 @@ error_reporting(E_ALL);
  *         name="Mona Omeragic"
  *     )
  * )
- */
-/**
+ *
  * @OA\SecurityScheme(
- *   securityScheme="ApiKey",
- *   type="apiKey",
- *   in="header",
- *   name="Authentication"
+ *     securityScheme="ApiKey",
+ *     type="apiKey",
+ *     in="header",
+ *     name="Authentication"
  * )
- */
-
-/**
+ *
  * @OA\Server(
  *     url="http://localhost/MonaOmeragic/Web-programming/backend",
  *     description="Local Development Server"
+ * )
+ * @OA\Server(
+ *     url="https://whale-app-2-rytvu.ondigitalocean.app",
+ *     description="Production API server"
  * )
  */
