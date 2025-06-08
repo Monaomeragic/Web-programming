@@ -1,39 +1,49 @@
 <?php
-
-// Enable error reporting for development
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL ^ (E_NOTICE | E_DEPRECATED));
 
-class Config {
-    // Switch this to true for local dev, false for production
-    private static $USE_LOCAL = false;
+class Config
+{
+    public static function DB_NAME()
+    {
+        return self::get_env("DB_NAME", 'appointment');
+    }
 
-    public static function DB_NAME() {
-        // Local: 'appointment', Production: 'defaultdb'
-        return self::get_env("DB_NAME", self::$USE_LOCAL ? "appointment" : "defaultdb");
+    public static function DB_PORT()
+    {
+        return self::get_env("DB_PORT", 3306);
     }
-    public static function DB_PORT() {
-        // Local: 3306, Production: 25060 (or your production port)
-        return self::get_env("DB_PORT", self::$USE_LOCAL ? 3306 : 25060);
+
+    public static function DB_USER()
+    {
+        return self::get_env("DB_USER", 'root'); // Use env variable for production!
     }
-    public static function DB_USER() {
-        // Local: 'root', Production: 'doadmin'
-        return self::get_env("DB_USER", self::$USE_LOCAL ? "root" : "doadmin");
+
+    public static function DB_PASSWORD()
+    {
+        return self::get_env("DB_PASSWORD", '');
     }
-    public static function DB_PASSWORD() {
-        // Local: '', Production: (set as env variable, do not hard-code)
-        return self::get_env("DB_PASSWORD", self::$USE_LOCAL ? "" : "");
+
+    public static function DB_HOST()
+    {
+        return self::get_env("DB_HOST", '127.0.0.1');
     }
-    public static function DB_HOST() {
-        // Local: '127.0.0.1', Production: your DigitalOcean host
-        return self::get_env("DB_HOST", self::$USE_LOCAL ? "127.0.0.1" : "db-mysql-fra1-29004-do-user-23069002-0.e.db.ondigitalocean.com");
-    }
-    public static function JWT_SECRET() {
-        // Use a strong secret! Change for your app.
+
+    public static function JWT_SECRET()
+    {
         return self::get_env("JWT_SECRET", ',mona_$FQBhJ');
     }
-    public static function get_env($name, $default){
-        return isset($_ENV[$name]) && trim($_ENV[$name]) != "" ? $_ENV[$name] : $default;
+
+    private static function get_env($name, $default)
+    {
+        if (isset($_ENV[$name]) && trim($_ENV[$name]) !== "") {
+            return trim($_ENV[$name]);
+        } elseif (isset($_SERVER[$name]) && trim($_SERVER[$name]) !== "") {
+            return trim($_SERVER[$name]);
+        } else {
+            return trim($default);
+        }
     }
 }
+?>
