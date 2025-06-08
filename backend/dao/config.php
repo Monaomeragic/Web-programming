@@ -7,7 +7,7 @@ error_reporting(E_ALL ^ (E_NOTICE | E_DEPRECATED));
 
 class Config {
     // Switch this to true for local dev, false for production
-    private static $USE_LOCAL = true;
+    private static $USE_LOCAL = false;
 
     public static function DB_NAME() {
         // Local: 'appointment', Production: 'defaultdb'
