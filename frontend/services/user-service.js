@@ -1,11 +1,4 @@
 // Assumes Utils and Constants are loaded globally before this script.
-if (typeof toastr === "undefined") {
-  var toastr = { error: alert, success: alert }; // fallback to alert
-}
-// Ensure Constants.PROJECT_BASE_URL does not end with a slash
-if (Constants && Constants.PROJECT_BASE_URL.endsWith('/')) {
-  Constants.PROJECT_BASE_URL = Constants.PROJECT_BASE_URL.replace(/\/+$/, '');
-}
 const UserService = {
     initLogin() {
       const token = localStorage.getItem("user_token");
@@ -69,7 +62,14 @@ const UserService = {
           }
         },
         error(xhr) {
-          toastr.error(xhr.responseText || xhr.responseJSON?.message || "Login failed");
+          let message = "Login failed.";
+          try {
+            const res = xhr.responseJSON || JSON.parse(xhr.responseText);
+            message = res.message || res.error || message;
+          } catch (e) {
+            // fallback
+          }
+          alert(message);
         }
       });
     },
@@ -85,12 +85,16 @@ const UserService = {
       contentType: 'application/json',
       dataType: 'json',
       success() {
-        toastr.success('Registration successful! Please log in.');
+        alert('Registration successful! Please log in.');
         window.location.hash = '#login';
       },
       error(xhr) {
-        const msg = xhr.responseJSON?.error || xhr.responseText || 'Signup failed';
-        toastr.error(msg);
+        let msg = 'Signup failed';
+        try {
+          const res = xhr.responseJSON || JSON.parse(xhr.responseText);
+          msg = res.error || res.message || msg;
+        } catch (e) {}
+        alert(msg);
       }
     });
   },

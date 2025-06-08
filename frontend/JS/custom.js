@@ -1069,8 +1069,17 @@ $(document).off('submit', '#login-form').on('submit', '#login-form', function(e)
     },
     error(xhr, status, error) {
       console.error('Login error:', status, error, xhr.responseText);
-      const msg = xhr.responseJSON?.error || xhr.responseText || xhr.statusText;
-      alert('Login failed: ' + msg);
+
+      let msg = "Login failed. Please check your email and password.";
+      try {
+        const response = JSON.parse(xhr.responseText);
+        if (response.error) msg = response.error;
+        else if (response.message) msg = response.message;
+      } catch {
+        if (xhr.statusText) msg = xhr.statusText;
+      }
+
+      alert(msg);
     }
   });
 });
