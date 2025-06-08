@@ -16,7 +16,7 @@ class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
             ];
 
-            // If you have SSL cert for DigitalOcean, uncomment the line below and make sure the path is correct.
+            // Uncomment the following line and update the path if you use SSL for DigitalOcean
             // $options[PDO::MYSQL_ATTR_SSL_CA] = __DIR__ . '/ca-certificate.crt';
 
             try {

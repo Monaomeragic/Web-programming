@@ -30,7 +30,7 @@ const UserService = {
     },
     login(credentials) {
       $.ajax({
-        url: Constants.PROJECT_BASE_URL + "/auth/login",
+        url: Constants.PROJECT_BASE_URL.replace(/\/$/, '') + "/auth/login",
         type: "POST",
         data: JSON.stringify(credentials),
         contentType: "application/json",
@@ -69,7 +69,14 @@ const UserService = {
           } catch (e) {
             // fallback
           }
-          alert(message);
+          // Display error message inline if element exists, else alert
+          const displayError = document.getElementById('login-error');
+          if (displayError) {
+            displayError.textContent = message;
+            displayError.style.display = 'block';
+          } else {
+            alert(message);
+          }
         }
       });
     },
@@ -79,7 +86,7 @@ const UserService = {
    */
   register(credentials) {
     $.ajax({
-      url: Constants.PROJECT_BASE_URL + '/index.php?url=/auth/register',
+      url: Constants.PROJECT_BASE_URL.replace(/\/$/, '') + '/index.php?url=/auth/register',
       type: 'POST',
       data: JSON.stringify(credentials),
       contentType: 'application/json',

@@ -10,7 +10,7 @@ class BaseDao {
 
    public function __construct($table_name) {
        $this->table_name = $table_name;
-       $this->connection = Database::connect();
+       $this->connection = Database::getInstance();
    }
    public function getAll() {
     $stmt = $this->connection->prepare("SELECT * FROM `" . $this->table_name . "`");
