@@ -2,7 +2,7 @@
 require_once __DIR__ . '/BaseDao.php';
 
 class AuthDao extends BaseDao {
-    protected $table_name;
+    protected string $table_name;
 
     public function __construct() {
         $this->table_name = "users";

@@ -71,20 +71,32 @@ class AuthService extends BaseService {
      * @return array ['success' => bool, 'data' => array|null, 'error' => string|null]
      */
     public function login($data) {
+        // Check if email and password are provided
         if (empty($data['email']) || empty($data['password'])) {
             return ['success' => false, 'error' => 'Email and password are required.'];
         }
+
+        // Retrieve user by email
         $user = $this->auth_dao->get_user_by_email($data['email']);
+        // Check if user exists and verify password
         if (!$user || !password_verify($data['password'], $user['password'])) {
             return ['success' => false, 'error' => 'Invalid email or password.'];
         }
+
+        // Remove password from user data before returning
         unset($user['password']);
+
+        // Create JWT payload with user data, issued at, and expiry (24 hours)
         $payload = [
             'user' => $user,
             'iat'  => time(),
-            'exp'  => time() + (60 * 60 * 24)
+            'exp'  => time() + (60 * 60 * 24), // 24 hours expiry
         ];
+
+        // Encode JWT token with secret key and HS256 algorithm
         $token = JWT::encode($payload, Config::JWT_SECRET(), 'HS256');
+
+        // Return success with user data and token
         return ['success' => true, 'data' => array_merge($user, ['token' => $token])];
     }
 }

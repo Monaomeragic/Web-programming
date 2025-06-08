@@ -72,7 +72,7 @@ class UsersDao extends BaseDao {
         return $this->delete($id);
     }
 
-    public function getAll() {
+    public function getAll(): array {
         $stmt = $this->connection->prepare("SELECT * FROM users");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
