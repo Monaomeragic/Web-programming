@@ -28,7 +28,7 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1') {
     define('BASE_URL', 'http://localhost/MonaOmeragic/Web-programming/backend');
 } else {
-    define('BASE_URL', 'https://whale-app-2-rytvu.ondigitalocean.app');
+    define('BASE_URL', 'https://whale-app-2-rytvu.ondigitalocean.app/backend');
 }
 
 // === GENERATE OPENAPI DOCS ===
