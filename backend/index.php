@@ -6,6 +6,35 @@ require_once __DIR__ . '/middleware/AuthMiddleware.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
+// === CORS SETUP ===
+$allowedOrigins = [
+    "https://whale-app-2-rytvu.ondigitalocean.app",
+    "http://localhost",
+    "http://127.0.0.1"
+];
+
+// CORS preflight handling
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
+        header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Authentication");
+        header("Access-Control-Allow-Credentials: true");
+    }
+    http_response_code(200); // respond with 200 OK for preflight
+    exit();
+}
+
+// Add CORS headers before each route
+Flight::before('route', function () use ($allowedOrigins) {
+    if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
+        header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Authentication");
+        header("Access-Control-Allow-Credentials: true");
+    }
+});
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
