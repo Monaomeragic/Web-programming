@@ -27,4 +27,8 @@ class Database
         }
         return self::$instance;
     }
+
+    public static function connect() {
+        return self::getInstance();
+    }
 }
