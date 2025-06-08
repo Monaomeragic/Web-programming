@@ -2,7 +2,7 @@ if (typeof window.Constants === 'undefined') {
     PROJECT_BASE_URL:
   window.location.hostname === "localhost"
     ? "http://localhost/MonaOmeragic/Web-programming/backend"
-    : "https://whale-app-ecbrt.ondigitalocean.app/"
+    : "https://whale-app-2-rytvu.ondigitalocean.app/"
     };
   
   window.RestClient = {

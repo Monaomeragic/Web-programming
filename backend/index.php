@@ -8,7 +8,7 @@ use Firebase\JWT\Key;
 
 // === CORS SETUP ===
 $allowedOrigins = [
-    "https://whale-app-ecbrt.ondigitalocean.app/",
+    "https://whale-app-2-rytvu.ondigitalocean.app/",
     "http://localhost",
     "http://127.0.0.1"
 ];
