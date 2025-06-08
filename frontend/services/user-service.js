@@ -1,4 +1,11 @@
 // Assumes Utils and Constants are loaded globally before this script.
+if (typeof toastr === "undefined") {
+  var toastr = { error: alert, success: alert }; // fallback to alert
+}
+// Ensure Constants.PROJECT_BASE_URL does not end with a slash
+if (Constants && Constants.PROJECT_BASE_URL.endsWith('/')) {
+  Constants.PROJECT_BASE_URL = Constants.PROJECT_BASE_URL.replace(/\/+$/, '');
+}
 const UserService = {
     initLogin() {
       const token = localStorage.getItem("user_token");
