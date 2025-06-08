@@ -25,7 +25,7 @@ error_reporting(E_ALL);
  *     description="Local Development Server"
  * )
  * @OA\Server(
- *     url="https://whale-app-2-rytvu.ondigitalocean.app/backend",
+ *     url="https://whale-app-ecbrt.ondigitalocean.app/",
  *     description="Production API server"
  * )
  */
