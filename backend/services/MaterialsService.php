@@ -53,6 +53,9 @@ class MaterialsService extends BaseService {
 
         // Handle file upload (ensure uploads/ exists with proper permissions)
         $uploadDir = __DIR__ . '/../../uploads/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
         // Directory must be created manually and be writable by PHP.
 
         $fileInfo = $_FILES['file'];
@@ -64,8 +67,10 @@ class MaterialsService extends BaseService {
             return;
         }
 
-        // Build public URL
-        $fileUrl = '/MonaOmeragic/Web-programming/uploads/' . $filename;
+        // Build a public URL pointing to the uploads folder
+        $protocol = isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : 'https';
+        $host = $_SERVER['HTTP_HOST'];
+        $fileUrl = $protocol . '://' . $host . '/uploads/' . $filename;
 
         // Insert DB record
         $success = $this->dao->createMaterial([
