@@ -18,7 +18,7 @@ $allowedOrigins = [
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
         header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
-        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
         header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Authentication");
         header("Access-Control-Allow-Credentials: true");
     }
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 Flight::before('route', function () use ($allowedOrigins) {
     if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
         header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
-        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
         header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Authentication");
         header("Access-Control-Allow-Credentials: true");
     }
