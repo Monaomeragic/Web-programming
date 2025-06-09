@@ -25,11 +25,12 @@ class UsersService extends BaseService {
         if (!in_array($data['role'], ['professor', 'assistant', 'student'])) {
             throw new Exception('Role must be professor, assistant, or student.');
         }
-        if (in_array($data['role'], ['professor', 'assistant']) && !str_ends_with($data['email'], '@prof.ba')) {
-            throw new Exception('Professor or assistant email must end with @prof.ba');
+        // Allow professor/assistant emails under any “@prof.” domain, and students under any “@stu.” domain
+        if (in_array($data['role'], ['professor', 'assistant']) && !preg_match('/@prof\\./', $data['email'])) {
+            throw new Exception('Professor or assistant email must contain “@prof.”');
         }
-        if ($data['role'] === 'student' && !str_ends_with($data['email'], '@stu.ba')) {
-            throw new Exception('Student email must end with @stu.ba');
+        if ($data['role'] === 'student' && !preg_match('/@stu\\./', $data['email'])) {
+            throw new Exception('Student email must contain “@stu.”');
         }
 
         
@@ -57,12 +58,12 @@ class UsersService extends BaseService {
     }
 
     // service za login
-    public function login($email) {
-        if (empty($email)) {
-            throw new Exception('Email is required.');
+    public function login(array $data): array {
+        if (empty($data['email']) || empty($data['password'])) {
+            throw new Exception('Email and password are required.');
         }
 
-        return $this->usersDao->login($email);
+        return Flight::auth_service()->login($data);
     }
 
     public function getUser($id) {
