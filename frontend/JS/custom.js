@@ -70,6 +70,14 @@ function detectSubjectFromHash() {
 }
 
 $(document).ready(function () {
+  // Dynamically set the materials page title based on URL hash
+  const currentSubject = detectSubjectFromHash();
+  if (currentSubject) {
+    const titleEl = document.getElementById("materialTitle");
+    if (titleEl) {
+      titleEl.textContent = currentSubject + " Materials";
+    }
+  }
 function loadEditProfessors() {
   const selectedSubject = $('#subjectFilter').val() || 'all'; // Ensure a default value of 'all' is used if nothing is selected
   const container = $('#editProfessorsList');
@@ -161,6 +169,7 @@ function loadEditProfessors() {
       localStorage.setItem("materials", JSON.stringify([]));
   }
 
+  // Application routes
   let app = $.spapp({
     defaultView: 'home',
     pageNotFound: 'error_404.html',
@@ -471,13 +480,27 @@ function capitalizeFirstLetter(string) {
     updateNavigation();
   }
 
-  function loadMaterialsPage(subject) {
+function loadMaterialsPage(subject) {
     if (!subject || !subject.trim()) {
       alert("Please select a subject.");
       return;
     }
 
-    const containerId = subject.toLowerCase().replace(/\s/g, '') + 'MaterialsContainer';
+    // Set dynamic subject title
+    const titleElement = document.getElementById("materialTitle");
+    if (titleElement) {
+      titleElement.textContent = subject + " Materials";
+    }
+
+    // Build camelCase container ID like "computerScienceMaterialsContainer"
+    const words = subject.split(/\s+/);
+    const containerId = words
+      .map((w, i) =>
+        i === 0
+          ? w.charAt(0).toLowerCase() + w.slice(1)
+          : w.charAt(0).toUpperCase() + w.slice(1)
+      )
+      .join('') + 'MaterialsContainer';
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -900,7 +923,7 @@ function capitalizeFirstLetter(string) {
     }
     let dateObj = new Date(normalizedDate);
     if (isNaN(dateObj.getTime())) {
-      dateObj = new Date(Date.parse(normalizedDate));
+        dateObj = new Date(Date.parse(normalizedDate));
     }
     if (isNaN(dateObj.getTime())) {
       return safeCB([]);

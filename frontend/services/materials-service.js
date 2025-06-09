@@ -73,8 +73,7 @@ MaterialsService.create = function(subjectName, materialData, onSuccess, onError
   fetch(url, {
     method: 'POST',
     headers: {
-      'Authorization': 'Bearer ' + getToken()
-      // DO NOT set Content-Type here; the browser will set it automatically for FormData
+      'Authentication': 'Bearer ' + getToken()
     },
     body: formData
   })
